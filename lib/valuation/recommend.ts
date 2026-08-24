@@ -14,7 +14,14 @@ export interface Recommendation extends BoardPlayer {
  * Hard roster ceilings. Past these a player is worth nothing to you: you cannot
  * start two kickers, so a second one is not "low value", it is zero value.
  */
-const HARD_CAP: Record<string, number> = { QB: 2, RB: 7, WR: 7, TE: 2, K: 1, DST: 1 };
+const HARD_CAP: Record<string, number> = {
+  QB: Number(process.env.QB_CAP ?? 2),
+  RB: 7,
+  WR: 7,
+  TE: Number(process.env.TE_CAP ?? 2),
+  K: 1,
+  DST: 1,
+};
 
 /**
  * How much a preseason projection at each position can be trusted.
@@ -63,6 +70,29 @@ const SURVIVAL_WEIGHT = 0;
  * below-replacement bench body anyway.
  */
 const STREAM_LATE = new Set(["K", "DST"]);
+
+/**
+ * Is this player a pure backup -- someone who can never crack the starting lineup
+ * as the roster stands?
+ *
+ * Derived from the league rather than hardcoded. A fourth running back can start
+ * in the RB/WR flex, so his depth is live value and worth real capital, which
+ * matters because running backs get hurt. A second quarterback or tight end can
+ * never start here: one slot each, neither flex-eligible. Those are bye-week and
+ * injury insurance, and insurance should not cost a strong receiver in round 9.
+ */
+function isPureBackup(
+  position: Position,
+  have: Record<string, number>,
+  slots: StartingSlot[]
+): boolean {
+  const startable = slots
+    .filter((s) => s.eligible.includes(position))
+    .reduce((n, s) => n + s.count, 0);
+  const flexEligible = slots.some((s) => s.eligible.length > 1 && s.eligible.includes(position));
+  if (flexEligible) return false; // depth here can still start
+  return (have[position] ?? 0) >= startable;
+}
 const STREAM_LATE_PICKS = Number(process.env.STREAM_LATE_PICKS ?? 4);
 
 /**
@@ -174,6 +204,8 @@ export function recommend(
     if (opts.draftedIds.has(p.id)) return false;
     if (forced.includes(p.position)) return true;
     if (tooEarlyForStreamers && STREAM_LATE.has(p.position)) return false;
+    // Backups you could never start wait for the endgame, same as kickers.
+    if (tooEarlyForStreamers && isPureBackup(p.position, opts.myRoster, opts.slots)) return false;
     return rosterNeed(p.position, opts.myRoster, opts.slots) > 0;
   });
 
