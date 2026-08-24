@@ -363,25 +363,32 @@ footer{padding:1.5rem 0 3rem;color:var(--text-2);font-size:.7rem;font-family:var
 
 /* ---------- block clock ---------- */
 .blockclock{
-  display:inline-flex;flex-direction:column;gap:.5rem;
-  background:var(--surface);border:var(--bw) solid var(--ink);
-  box-shadow:6px 6px 0 var(--ink);
-  padding:.65rem .9rem .75rem;
+  /* Scoreboard: cyan on black, everything one colour. */
+  --bc-color:var(--cyan);
+  --bc-face:#12100E;
+  --bc-dim:#8C8279;
+  --bc-bright:#FFF6E5;
+
+  display:inline-flex;flex-direction:column;gap:.55rem;
+  background:var(--bc-face);
+  border:var(--bw) solid var(--ink);
+  box-shadow:7px 7px 0 var(--bc-color);
+  padding:.7rem .95rem .8rem;
   transform:rotate(1.2deg);
 }
 .bc-cap{
-  display:flex;flex-wrap:wrap;gap:.15rem .5rem;align-items:baseline;
+  display:flex;flex-wrap:wrap;gap:.15rem .55rem;align-items:baseline;
   font-family:var(--f-mono);font-size:.53rem;font-weight:700;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--muted);
+  text-transform:uppercase;color:var(--bc-dim);
 }
-.bc-cap em{font-style:normal;color:var(--ink);letter-spacing:.1em}
-.bc-row{display:flex;gap:.95rem;align-items:flex-start}
-.bc-group{display:flex;flex-direction:column;align-items:center;gap:.35rem}
+.bc-cap em{font-style:normal;color:var(--bc-bright);letter-spacing:.1em}
+.bc-row{display:flex;gap:1rem;align-items:flex-start}
+.bc-group{display:flex;flex-direction:column;align-items:center;gap:.4rem}
 .bc-digits{display:flex;gap:7px}
 
 /* One digit: 3 columns x 5 rows, centres of rows 2 and 4 left empty. */
 .bc-digit{
-  --cell:8px;
+  --cell:9px;
   --gap:3px;
   display:grid;
   grid-template-columns:repeat(3,var(--cell));
@@ -390,22 +397,26 @@ footer{padding:1.5rem 0 3rem;color:var(--text-2);font-size:.7rem;font-family:var
 }
 
 /*
-   Every block is grid-placed at its HOME column and then translated by whole
-   column steps. Because only the transform changes between digits, the browser
-   animates the block travelling across -- which is the point of the reference.
-   Appearing and disappearing would kill it.
+   Every block is grid-placed at its home column and translated by whole column
+   steps. Only the transform changes between digits, so the browser animates the
+   travel across.
+
+   Timing matches the reference: its keyframes sit at 10% of a 10s animation, so
+   each digit change takes a full second on the default ease. A shorter duration
+   with an overshoot curve reads as bouncy; this reads as gliding, and at one
+   second the blocks are still moving when the next tick arrives, which is what
+   makes it continuous.
 */
 .bc-digit i{
   display:block;
-  background:var(--bc-color, var(--cyan));
+  background:var(--bc-color);
   border-radius:2px;
-  box-shadow:0 1px 0 rgba(21,18,16,.35);
   transform:translateX(calc(var(--dx, 0) * (var(--cell) + var(--gap))));
-  transition:transform .5s cubic-bezier(.34,1.45,.5,1);
+  transition:transform 1s ease;
 }
 .bc-label{
   font-family:var(--f-mono);font-size:.5rem;font-weight:700;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--muted);
+  text-transform:uppercase;color:var(--bc-dim);
 }
 @media (prefers-reduced-motion:reduce){
   .bc-digit i{transition:none}
