@@ -23,6 +23,8 @@ export interface LeagueSettings {
   playoffTeams: number;
   regularSeasonMatchups: number;
   lineupLockType: string;
+  /** Raw scoring rules, so external projections can be scored under them. */
+  scoringItems: { statId: number; points: number }[];
 }
 
 export async function getLeagueSettings(): Promise<LeagueSettings> {
@@ -68,5 +70,6 @@ export async function getLeagueSettings(): Promise<LeagueSettings> {
     playoffTeams: s.scheduleSettings.playoffTeamCount,
     regularSeasonMatchups: s.scheduleSettings.matchupPeriodCount,
     lineupLockType: s.rosterSettings.lineupLocktimeType,
+    scoringItems: (s.scoringSettings.scoringItems ?? []).map((i: any) => ({ statId: i.statId, points: i.points })),
   };
 }
