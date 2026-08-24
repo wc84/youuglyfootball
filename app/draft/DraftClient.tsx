@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { WarRoom } from "@/lib/valuation/warroom";
 import { injuryCode } from "@/lib/injury";
 
-const POLL_MS = 5000;
+const POLL_MS = 4000;
+const STALE_MS = 90_000; // no new pick this long during a live draft = tracking may be stuck
 
 export default function DraftClient() {
   const [wr, setWr] = useState<WarRoom | null>(null);
@@ -13,6 +14,9 @@ export default function DraftClient() {
   const [live, setLive] = useState(true);
   const [q, setQ] = useState("");
   const [lastSync, setLastSync] = useState<number | null>(null);
+  const [lastPickAt, setLastPickAt] = useState<number | null>(null);
+  const [now, setNow] = useState(0);
+  const seenCount = useRef<number | null>(null);
   const manualRef = useRef(manual);
   manualRef.current = manual;
 
@@ -21,6 +25,12 @@ export default function DraftClient() {
       const res = await fetch(`/api/draft?drafted=${manualRef.current.join(",")}`, { cache: "no-store" });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
+      // Track when the pick count last moved -- that, not the poll clock, is the
+      // real signal that auto-tracking is alive.
+      if (seenCount.current !== null && json.madePickCount !== seenCount.current) {
+        setLastPickAt(Date.now());
+      }
+      seenCount.current = json.madePickCount;
       setWr(json);
       setErr(null);
       setLastSync(Date.now());
@@ -30,6 +40,10 @@ export default function DraftClient() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
   useEffect(() => {
     if (!live) return;
     const t = setInterval(load, POLL_MS);
@@ -47,6 +61,9 @@ export default function DraftClient() {
 
   if (err && !wr) return <Shell><p className="err">Couldn&apos;t load the draft: {err}</p></Shell>;
   if (!wr) return <Shell><p className="loading">Loading draft…</p></Shell>;
+
+  const trackingStale =
+    wr.inProgress && !wr.complete && lastPickAt != null && now - lastPickAt > STALE_MS;
 
   const rows = q.trim()
     ? wr.available.filter((p) => p.name.toLowerCase().includes(q.trim().toLowerCase()))
@@ -68,6 +85,19 @@ export default function DraftClient() {
           <div className="dstat"><i>Roster</i><b>{
             ["QB","RB","WR","TE","K","DST"].map(p=>`${p}${wr.myRosterCounts[p]??0}`).join(" ")
           }</b></div>
+          <div className="tracking">
+            <i>Auto-tracking</i>
+            <b className={trackingStale ? "stale" : "ok"}>
+              {wr.madePickCount} {wr.madePickCount === 1 ? "pick" : "picks"} in
+            </b>
+            <em>
+              {wr.madePickCount === 0
+                ? "waiting for the draft to start"
+                : lastPickAt
+                  ? `last detected ${Math.round((now - lastPickAt) / 1000)}s ago`
+                  : "reading ESPN directly"}
+            </em>
+          </div>
           <div className="sync">
             <button className="tab" aria-pressed={live} onClick={() => setLive((v) => !v)}>
               {live ? "● Live" : "Paused"}
@@ -81,6 +111,12 @@ export default function DraftClient() {
 
       <main className="wrap">
         {err && <p className="err">Sync failed: {err} — showing last good data.</p>}
+        {trackingStale && (
+          <p className="warn">
+            No new pick detected in {Math.round((now - lastPickAt!) / 1000)}s. If the draft is
+            still moving, ESPN may not be reporting — use the Taken buttons to keep the board honest.
+          </p>
+        )}
 
         <section className="recs" aria-label="Recommendations">
           {wr.recommendations.map((r, i) => (

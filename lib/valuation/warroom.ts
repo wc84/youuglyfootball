@@ -12,6 +12,8 @@ export interface WarRoom {
   myNextPick: number | null;
   picksUntilMine: number | null;
   isMyPick: boolean;
+  madePickCount: number;
+  lastPickOverall: number | null;
   inProgress: boolean;
   complete: boolean;
   myRosterCounts: Record<string, number>;
@@ -62,6 +64,10 @@ export async function getWarRoom(manualDrafted: number[] = []): Promise<WarRoom>
     myNextPick: draft.myNextPick,
     picksUntilMine: draft.picksUntilMine,
     isMyPick: draft.myNextPick === onTheClock,
+    madePickCount: draft.madePicks.length,
+    lastPickOverall: draft.madePicks.length
+      ? Math.max(...draft.madePicks.map((p) => p.overall))
+      : null,
     inProgress: draft.inProgress,
     complete: draft.complete,
     myRosterCounts,

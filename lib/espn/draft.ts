@@ -30,7 +30,9 @@ export function snakePick(slot: number, round: number, teams: number): number {
 }
 
 export async function getDraftState(teams: number, rounds: number): Promise<DraftState> {
-  const raw = await espnFetch<any>(["mDraftDetail", "mTeam"]);
+  // Never cached. A five-minute-old pick list during a live draft would have the
+  // board recommending players who are already gone.
+  const raw = await espnFetch<any>(["mDraftDetail", "mTeam"], undefined, { revalidate: 0 });
   const dd = raw.draftDetail ?? {};
 
   const picks: DraftPick[] = (dd.picks ?? []).map((p: any) => ({
