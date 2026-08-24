@@ -6,6 +6,17 @@ import { injuryCode } from "@/lib/injury";
 
 const POSITIONS = ["ALL", "RB", "WR", "TE", "QB", "K", "DST"] as const;
 
+/** The sliding indicator takes the colour of whatever position is selected. */
+const GLIDER: Record<string, string> = {
+  ALL: "var(--pink)",
+  RB: "var(--rb)",
+  WR: "var(--wr)",
+  TE: "var(--te)",
+  QB: "var(--qb)",
+  K: "var(--k)",
+  DST: "var(--dst)",
+};
+
 function useCountdown(iso: string) {
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
@@ -90,6 +101,7 @@ export default function BoardClient({ board }: { board: Board }) {
               {
                 "--tab-count": POSITIONS.length,
                 "--tab-i": POSITIONS.indexOf(pos),
+                "--glider-c": GLIDER[pos],
               } as React.CSSProperties
             }
           >
