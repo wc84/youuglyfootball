@@ -68,7 +68,12 @@ export function recommend(
   const available = players.filter((p) => !opts.draftedIds.has(p.id));
 
   const scored = available.map((p) => {
-    const s = opts.nextPick != null ? survival(p.adp, opts.nextPick, p.position, pressure) : null;
+    // ESPN ADP centres the estimate -- this league drafts on ESPN, so it predicts
+    // these specific opponents. FFC supplies the measured spread around it.
+    const s =
+      opts.nextPick != null
+        ? survival(p.adp, opts.nextPick, p.position, pressure, p.ffcStdev)
+        : null;
     const need = rosterNeed(p.position, opts.myRoster, opts.slots);
     const score = p.vorp * need * (1 - 0.85 * (s ?? 0));
     return { ...p, survival: s, need, score, reason: "" };

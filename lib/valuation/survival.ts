@@ -20,8 +20,17 @@ function phi(z: number): number {
  * grows roughly proportionally after that, so by pick 100 a player can go twenty
  * slots either side of his average without anyone blinking.
  */
+/**
+ * Spread of a player's actual draft slot around his ADP.
+ *
+ * Fitted against 267 players across 7,658 real 10-team PPR drafts. An earlier
+ * hand-picked linear guess (2 + 0.18*adp) ran 55-148% too wide at every ADP band,
+ * which dragged every survival probability toward 50% and blunted the distinction
+ * between "certainly gone" and "certainly there". Prefer a player's own measured
+ * stdev when a source supplies one; this is the fallback.
+ */
 export function adpSigma(adp: number): number {
-  return 2 + 0.18 * adp;
+  return Math.max(0.5, 0.755 + 0.1147 * adp);
 }
 
 export interface RunPressure {
@@ -40,11 +49,13 @@ export function survival(
   adp: number | null,
   targetPick: number,
   position: Position,
-  pressure: RunPressure = {}
+  pressure: RunPressure = {},
+  measuredSigma?: number | null
 ): number | null {
   if (adp == null) return null;
   const effectiveAdp = Math.max(1, adp - (pressure[position] ?? 0));
-  const z = (targetPick - effectiveAdp) / adpSigma(effectiveAdp);
+  const sigma = measuredSigma && measuredSigma > 0 ? measuredSigma : adpSigma(effectiveAdp);
+  const z = (targetPick - effectiveAdp) / sigma;
   return Math.min(1, Math.max(0, 1 - phi(z)));
 }
 

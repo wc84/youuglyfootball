@@ -157,3 +157,5 @@ footer{padding:1.6rem 0 3rem;color:var(--muted);font-size:.78rem;font-family:var
 .tracking b.ok{color:var(--accent)} .tracking b.stale{color:var(--danger)}
 .tracking em{display:block;font-style:normal;font-family:var(--font-mono);font-size:.6rem;color:var(--muted);margin-top:.1rem}
 .warn{color:var(--warn);background:var(--warn-soft);border:1px solid var(--warn);padding:.7rem .9rem;border-radius:5px;font-size:.86rem;margin:1rem 0}
+.sd{color:var(--muted);font-size:.72em}
+td.disagree{color:var(--warn);font-weight:600}

@@ -110,7 +110,8 @@ export default function BoardClient({ board }: { board: Board }) {
                 <th className="n">Tier</th>
                 <th className="n">VORP</th>
                 <th className="n">Proj</th>
-                <th className="n">ADP</th>
+                <th className="n">ESPN ADP</th>
+                <th className="n">Real ADP</th>
                 <th className="n">Edge</th>
                 <th className="n">Own</th>
               </tr>
@@ -125,6 +126,7 @@ export default function BoardClient({ board }: { board: Board }) {
 
         <footer>
           {board.players.length} players valued · ESPN projections scored under league rules ·
+          real ADP from {board.ffcMatched} matched players across 10-team PPR drafts ·
           updated {new Date(board.generatedAt).toLocaleTimeString("en-US")}
         </footer>
       </main>
@@ -135,6 +137,10 @@ export default function BoardClient({ board }: { board: Board }) {
 function Row({ p, prev, showBreak }: { p: BoardPlayer; prev?: BoardPlayer; showBreak: boolean }) {
   const tierBreak = showBreak && prev && prev.tier !== p.tier;
   const edgeClass = p.edge == null ? "flat" : p.edge >= 8 ? "up" : p.edge <= -8 ? "down" : "flat";
+  // Where ESPN and real-draft ADP disagree badly, that disagreement is itself a
+  // signal: ESPN leagues draft some players much earlier than the wider market.
+  const gap = p.adp != null && p.ffcAdp != null ? p.ffcAdp - p.adp : null;
+  const gapClass = gap == null ? "" : Math.abs(gap) >= 7 ? "disagree" : "";
   return (
     <tr className={tierBreak ? "tierbreak" : undefined}>
       <td className="n rk">{p.rank}</td>
@@ -149,6 +155,10 @@ function Row({ p, prev, showBreak }: { p: BoardPlayer; prev?: BoardPlayer; showB
       <td className="n v">{p.vorp.toFixed(1)}</td>
       <td className="n mono">{p.projected?.toFixed(1)}</td>
       <td className="n mono">{p.adp ? p.adp.toFixed(1) : "—"}</td>
+      <td className={`n mono ${gapClass}`}>
+        {p.ffcAdp ? p.ffcAdp.toFixed(1) : "—"}
+        {p.ffcStdev ? <span className="sd"> ±{p.ffcStdev.toFixed(1)}</span> : null}
+      </td>
       <td className={`n edge ${edgeClass}`}>
         {p.edge == null ? "—" : (p.edge > 0 ? "+" : "") + p.edge.toFixed(0)}
       </td>

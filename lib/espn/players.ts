@@ -1,10 +1,12 @@
 import { espnFetch } from "./client";
 import { POSITION, type Position } from "./slots";
+import { PRO_TEAM } from "./teams";
 
 export interface PlayerRow {
   id: number;
   name: string;
   position: Position;
+  team: string;
   projected: number | null;
   lastSeason: number | null;
   adp: number | null;
@@ -41,6 +43,7 @@ export async function getPlayerPool(season = 2026, limit = 700): Promise<PlayerR
       id: p.id,
       name: p.fullName,
       position: POSITION[p.defaultPositionId],
+      team: PRO_TEAM[p.proTeamId] ?? "",
       projected: seasonStat(p, season, 1),
       lastSeason: seasonStat(p, season - 1, 0),
       adp: p.ownership?.averageDraftPosition ?? null,
