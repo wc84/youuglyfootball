@@ -365,8 +365,8 @@ footer{padding:1.5rem 0 3rem;color:var(--text-2);font-size:.7rem;font-family:var
 .blockclock{
   display:inline-flex;flex-direction:column;gap:.5rem;
   background:var(--surface);border:var(--bw) solid var(--ink);
-  box-shadow:6px 6px 0 var(--purple);
-  padding:.6rem .85rem .7rem;
+  box-shadow:6px 6px 0 var(--ink);
+  padding:.65rem .9rem .75rem;
   transform:rotate(1.2deg);
 }
 .bc-cap{
@@ -375,28 +375,39 @@ footer{padding:1.5rem 0 3rem;color:var(--text-2);font-size:.7rem;font-family:var
   text-transform:uppercase;color:var(--muted);
 }
 .bc-cap em{font-style:normal;color:var(--ink);letter-spacing:.1em}
-.bc-row{display:flex;gap:.85rem;align-items:flex-start}
-.bc-group{display:flex;flex-direction:column;align-items:center;gap:.32rem}
-.bc-digits{display:flex;gap:4px}
+.bc-row{display:flex;gap:.95rem;align-items:flex-start}
+.bc-group{display:flex;flex-direction:column;align-items:center;gap:.35rem}
+.bc-digits{display:flex;gap:7px}
+
+/* One digit: 3 columns x 5 rows, centres of rows 2 and 4 left empty. */
 .bc-digit{
+  --cell:8px;
+  --gap:3px;
   display:grid;
-  grid-template-columns:repeat(3,6px);
-  grid-template-rows:repeat(5,6px);
-  gap:2px;
-  animation:bc-pop .34s cubic-bezier(.34,1.8,.64,1) both;
+  grid-template-columns:repeat(3,var(--cell));
+  grid-template-rows:repeat(5,var(--cell));
+  gap:var(--gap);
 }
-.bc-digit i{display:block;border-radius:1.5px}
-.bc-on{box-shadow:1px 1px 0 rgba(21,18,16,.55)}
-.bc-off{background:var(--surface-3)}
+
+/*
+   Every block is grid-placed at its HOME column and then translated by whole
+   column steps. Because only the transform changes between digits, the browser
+   animates the block travelling across -- which is the point of the reference.
+   Appearing and disappearing would kill it.
+*/
+.bc-digit i{
+  display:block;
+  background:var(--bc-color, var(--cyan));
+  border-radius:2px;
+  box-shadow:0 1px 0 rgba(21,18,16,.35);
+  transform:translateX(calc(var(--dx, 0) * (var(--cell) + var(--gap))));
+  transition:transform .5s cubic-bezier(.34,1.45,.5,1);
+}
 .bc-label{
   font-family:var(--f-mono);font-size:.5rem;font-weight:700;letter-spacing:.13em;
-  text-transform:uppercase;
-}
-@keyframes bc-pop{
-  0%{transform:translateY(-3px) scale(.9)}
-  100%{transform:translateY(0) scale(1)}
+  text-transform:uppercase;color:var(--muted);
 }
 @media (prefers-reduced-motion:reduce){
-  .bc-digit{animation:none}
+  .bc-digit i{transition:none}
   .blockclock{transform:none}
 }

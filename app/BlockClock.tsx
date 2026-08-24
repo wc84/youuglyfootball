@@ -3,60 +3,87 @@
 import { useEffect, useState } from "react";
 
 /**
- * 3x5 block font. Each string is a row; 1 lights the cell.
+ * A digit is thirteen blocks that SLIDE between columns.
  *
- * The reference component was a decorative 3x5 grid of sliding squares. Same
- * grid, but driven by the actual countdown -- the shape carries information
- * instead of just moving.
+ * Straight from the reference: a 3x5 grid with two cells removed (the centres of
+ * rows 2 and 4), leaving thirteen blocks. Each block owns a home column and
+ * travels horizontally -- one column step, or two -- to build whatever digit is
+ * showing. Where a row needs fewer blocks than it holds, the spares stack on a lit
+ * position and hide behind each other.
+ *
+ * Nothing appears or disappears. The same thirteen blocks morph a 9 into a 0, and
+ * that travel is the entire character of the thing.
  */
-const GLYPH: Record<string, string[]> = {
-  "0": ["111", "101", "101", "101", "111"],
-  "1": ["010", "110", "010", "010", "111"],
-  "2": ["111", "001", "111", "100", "111"],
-  "3": ["111", "001", "111", "001", "111"],
-  "4": ["101", "101", "111", "001", "001"],
-  "5": ["111", "100", "111", "001", "111"],
-  "6": ["111", "100", "111", "101", "111"],
-  "7": ["111", "001", "010", "010", "010"],
-  "8": ["111", "101", "111", "101", "111"],
-  "9": ["111", "101", "111", "001", "111"],
+
+/** Row of each block, top to bottom. */
+const ROW = [1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5];
+
+/** Home column of each block -- where it sits with no transform. */
+const HOME = [1, 2, 3, 1, 3, 1, 2, 3, 1, 3, 1, 2, 3];
+
+/**
+ * Column each block occupies per digit, in the same order as ROW/HOME.
+ * The comment above each row is the 3x5 shape it produces.
+ */
+const SHAPE: Record<string, number[]> = {
+  // 111 / 1_1 / 1_1 / 1_1 / 111
+  "0": [1, 2, 3, 1, 3, 1, 3, 3, 1, 3, 1, 2, 3],
+  // __1 / __1 / __1 / __1 / __1   (every block piles into column three)
+  "1": [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+  // 111 / __1 / 111 / 1__ / 111
+  "2": [1, 2, 3, 3, 3, 1, 2, 3, 1, 1, 1, 2, 3],
+  // 111 / __1 / 111 / __1 / 111
+  "3": [1, 2, 3, 3, 3, 1, 2, 3, 3, 3, 1, 2, 3],
+  // 1_1 / 1_1 / 111 / __1 / __1
+  "4": [1, 3, 3, 1, 3, 1, 2, 3, 3, 3, 3, 3, 3],
+  // 111 / 1__ / 111 / __1 / 111
+  "5": [1, 2, 3, 1, 1, 1, 2, 3, 3, 3, 1, 2, 3],
+  // 111 / 1__ / 111 / 1_1 / 111
+  "6": [1, 2, 3, 1, 1, 1, 2, 3, 1, 3, 1, 2, 3],
+  // 111 / __1 / __1 / __1 / __1
+  "7": [1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+  // 111 / 1_1 / 111 / 1_1 / 111
+  "8": [1, 2, 3, 1, 3, 1, 2, 3, 1, 3, 1, 2, 3],
+  // 111 / 1_1 / 111 / __1 / 111
+  "9": [1, 2, 3, 1, 3, 1, 2, 3, 3, 3, 1, 2, 3],
 };
 
-function Digit({ char, tone }: { char: string; tone: string }) {
-  const rows = GLYPH[char] ?? GLYPH["0"];
+function Digit({ char }: { char: string }) {
+  const cols = SHAPE[char] ?? SHAPE["0"];
   return (
     <span className="bc-digit" aria-hidden="true">
-      {rows.flatMap((row, r) =>
-        row.split("").map((on, c) => (
-          <i
-            key={`${r}-${c}`}
-            className={on === "1" ? "bc-on" : "bc-off"}
-            style={on === "1" ? { background: tone } : undefined}
-          />
-        ))
-      )}
+      {ROW.map((row, i) => (
+        <i
+          key={i}
+          style={
+            {
+              gridRow: row,
+              gridColumn: HOME[i],
+              "--dx": cols[i] - HOME[i],
+            } as React.CSSProperties
+          }
+        />
+      ))}
     </span>
   );
 }
 
-function Group({ value, label, tone }: { value: number; label: string; tone: string }) {
+function Group({ value, label }: { value: number; label: string }) {
   const text = String(Math.max(0, value)).padStart(2, "0");
   return (
     <span className="bc-group">
       <span className="bc-digits">
         {text.split("").map((ch, i) => (
-          <Digit key={`${i}-${ch}`} char={ch} tone={tone} />
+          <Digit key={i} char={ch} />
         ))}
       </span>
-      <span className="bc-label" style={{ color: tone }}>
-        {label}
-      </span>
+      <span className="bc-label">{label}</span>
     </span>
   );
 }
 
 export default function BlockClock({ target, when }: { target: string | Date; when?: string }) {
-  // null until mounted: the server has no business guessing the client's clock.
+  // null until mounted: the server has no business guessing the viewer's clock.
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -79,11 +106,15 @@ export default function BlockClock({ target, when }: { target: string | Date; wh
         {ms !== null && ms <= 0 ? "Draft is live" : "Draft starts in"}
         {when ? <em>{when}</em> : null}
       </span>
-      <div className="bc-row" role="timer" aria-label={`${d} days ${h} hours ${m} minutes ${s} seconds until the draft`}>
-        <Group value={d} label="Days" tone="var(--pink)" />
-        <Group value={h} label="Hrs" tone="var(--cyan)" />
-        <Group value={m} label="Min" tone="var(--lime)" />
-        <Group value={s} label="Sec" tone="var(--orange)" />
+      <div
+        className="bc-row"
+        role="timer"
+        aria-label={`${d} days ${h} hours ${m} minutes ${s} seconds until the draft`}
+      >
+        <Group value={d} label="Days" />
+        <Group value={h} label="Hrs" />
+        <Group value={m} label="Min" />
+        <Group value={s} label="Sec" />
       </div>
     </div>
   );
