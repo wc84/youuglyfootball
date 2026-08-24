@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import type { Board, BoardPlayer } from "@/lib/valuation/board";
 import { injuryCode } from "@/lib/injury";
+import BlockClock from "./BlockClock";
 
 const POSITIONS = ["ALL", "RB", "WR", "TE", "QB", "K", "DST"] as const;
 
@@ -17,27 +18,9 @@ const GLIDER: Record<string, string> = {
   DST: "var(--dst)",
 };
 
-function useCountdown(iso: string) {
-  const [now, setNow] = useState<number | null>(null);
-  useEffect(() => {
-    setNow(Date.now());
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  if (now === null) return null; // avoid server/client clock mismatch
-  const ms = new Date(iso).getTime() - now;
-  if (ms <= 0) return "DRAFTING";
-  const d = Math.floor(ms / 86400000);
-  const h = Math.floor((ms % 86400000) / 3600000);
-  const m = Math.floor((ms % 3600000) / 60000);
-  const s = Math.floor((ms % 60000) / 1000);
-  return `${d}d ${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
-}
-
 export default function BoardClient({ board }: { board: Board }) {
   const [pos, setPos] = useState<(typeof POSITIONS)[number]>("ALL");
   const [q, setQ] = useState("");
-  const countdown = useCountdown(board.league.draftDate as unknown as string);
 
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -58,15 +41,13 @@ export default function BoardClient({ board }: { board: Board }) {
           <h1 className="brand">
             YOU <em>UGLY</em>
           </h1>
-          <div className="countdown">
-            Draft ·{" "}
-            {draftDate.toLocaleString("en-US", {
+          <BlockClock
+            target={board.league.draftDate as unknown as string}
+            when={draftDate.toLocaleString("en-US", {
               month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
               timeZone: "America/New_York",
-            })}{" "}
-            ET
-            <b>{countdown ?? " "}</b>
-          </div>
+            }) + " ET"}
+          />
         </div>
         <div className="facts">
           <div className="fact"><i>Teams</i><b>{l.size}</b></div>
