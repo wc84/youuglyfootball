@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Oswald, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Anton, Archivo, Space_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "./Nav";
 
-const display = Oswald({ variable: "--font-display", subsets: ["latin"], weight: ["400", "500", "600"] });
-const body = IBM_Plex_Sans({ variable: "--font-body", subsets: ["latin"], weight: ["400", "500", "600"] });
-const mono = IBM_Plex_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "500", "600"] });
+const display = Anton({ variable: "--font-display", subsets: ["latin"], weight: "400" });
+const body = Archivo({ variable: "--font-body", subsets: ["latin"], weight: ["400", "600", "700", "800"] });
+const mono = Space_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "700"] });
 
 export const metadata: Metadata = {
   title: "YOU UGLY — Draft Board",

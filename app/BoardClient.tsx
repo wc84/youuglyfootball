@@ -45,7 +45,7 @@ export default function BoardClient({ board }: { board: Board }) {
       <header className="top">
         <div className="wrap top-in">
           <h1 className="brand">
-            YOU <span>UGLY</span>
+            YOU <em>UGLY</em>
           </h1>
           <div className="countdown">
             Draft ·{" "}
@@ -84,12 +84,21 @@ export default function BoardClient({ board }: { board: Board }) {
         </div>
 
         <div className="controls">
-          <div className="tabs">
+          <div
+            className="tabs"
+            style={
+              {
+                "--tab-count": POSITIONS.length,
+                "--tab-i": POSITIONS.indexOf(pos),
+              } as React.CSSProperties
+            }
+          >
             {POSITIONS.map((p) => (
               <button key={p} className="tab" aria-pressed={pos === p} onClick={() => setPos(p)}>
                 {p}
               </button>
             ))}
+            <span className="glider" aria-hidden="true" />
           </div>
           <input
             className="search"
