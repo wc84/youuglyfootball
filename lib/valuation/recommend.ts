@@ -53,6 +53,30 @@ const RELIABILITY: Record<string, number> = { QB: 1, RB: 1, WR: 1, TE: 0.95, K: 
  */
 const SURVIVAL_WEIGHT = 0;
 
+/**
+ * Positions that are streamed, not drafted.
+ *
+ * Kicker and defense are startable off waivers all season -- matchup streaming
+ * beats whoever you drafted in most weeks -- so spending a mid-round pick on the
+ * "best" one buys a point a week you could have had for free. They are held out
+ * of consideration until your final few picks, where the alternative is a
+ * below-replacement bench body anyway.
+ */
+const STREAM_LATE = new Set(["K", "DST"]);
+const STREAM_LATE_PICKS = Number(process.env.STREAM_LATE_PICKS ?? 4);
+
+/**
+ * Picks of slack before a required starter becomes urgent.
+ *
+ * Measured at 0 / 2 / 4 this changes nothing (30.7% / 30.8% / 30.7%), because a
+ * below-replacement quarterback costs about two points a week on a 120-point
+ * lineup in a 1-QB league with 4-point passing touchdowns. Set to 2 anyway for a
+ * reason the simulator cannot see: it models no in-season injuries, so finishing
+ * a draft with two below-replacement quarterbacks is riskier in reality than in
+ * the simulation. Free insurance against a tail the measurement is blind to.
+ */
+const MUSTFILL_BUFFER = Number(process.env.MUSTFILL_BUFFER ?? 2);
+
 /** Starters this league requires, used for must-fill near the end of the draft. */
 const REQUIRED: Record<string, number> = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DST: 1 };
 
@@ -99,7 +123,11 @@ export function mustFill(
 ): string[] {
   const missing = Object.keys(REQUIRED).filter((p) => (have[p] ?? 0) < REQUIRED[p]);
   const needed = missing.reduce((n, p) => n + (REQUIRED[p] - (have[p] ?? 0)), 0);
-  return needed >= picksRemaining ? missing : [];
+  // The buffer exists because VORP assumes replacement level is still available,
+  // and at quarterback it isn't: every team drafts two, so twenty are gone before
+  // the endgame and "QB11" is long since off the board. Waiting to the last
+  // possible pick lands a starter well below the replacement the maths assumed.
+  return needed >= picksRemaining - MUSTFILL_BUFFER ? missing : [];
 }
 
 /**
@@ -138,12 +166,16 @@ export function recommend(
   // Players at a hard cap are removed outright, not scored zero. Late in a draft
   // the best remaining players have NEGATIVE value over replacement, so a
   // zero-scored sixth defense outranks them and the roster fills with kickers.
-  const available = players.filter(
-    (p) =>
-      !opts.draftedIds.has(p.id) &&
-      (forced.includes(p.position) ||
-        rosterNeed(p.position, opts.myRoster, opts.slots) > 0)
-  );
+  // Kickers and defenses stay off the board until the endgame.
+  const tooEarlyForStreamers =
+    opts.picksRemaining != null && opts.picksRemaining > STREAM_LATE_PICKS;
+
+  const available = players.filter((p) => {
+    if (opts.draftedIds.has(p.id)) return false;
+    if (forced.includes(p.position)) return true;
+    if (tooEarlyForStreamers && STREAM_LATE.has(p.position)) return false;
+    return rosterNeed(p.position, opts.myRoster, opts.slots) > 0;
+  });
 
   // Expected value of the pick you'd make anyway if you passed on everyone here.
   // Roughly `picksUntilNext` players come off the board before your next turn, so
