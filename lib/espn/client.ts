@@ -26,7 +26,9 @@ export async function espnFetch<T>(views: string[], filter?: unknown): Promise<T
   };
   if (filter) headers["X-Fantasy-Filter"] = JSON.stringify(filter);
 
-  const res = await fetch(url, { headers });
+  // Cached for 5 minutes at the data layer. The page itself renders per request,
+  // so a build never depends on ESPN being up or the cookies being fresh.
+  const res = await fetch(url, { headers, next: { revalidate: 300 } });
 
   if (res.status === 401) {
     throw new Error(

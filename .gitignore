@@ -49,3 +49,6 @@ npm-debug.log*
 out/
 yarn-debug.log*
 yarn-error.log*
+
+# Local Netlify folder
+.netlify
