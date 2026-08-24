@@ -11,6 +11,26 @@ export interface Recommendation extends BoardPlayer {
 }
 
 /**
+ * Hard roster ceilings. Past these a player is worth nothing to you: you cannot
+ * start two kickers, so a second one is not "low value", it is zero value.
+ */
+const HARD_CAP: Record<string, number> = { QB: 2, RB: 7, WR: 7, TE: 2, K: 1, DST: 1 };
+
+/**
+ * How much a preseason projection at each position can be trusted.
+ *
+ * Kicker and defense scoring is close to noise week to week, so a 27-point VORP
+ * edge at kicker is not the same asset as 27 points at running back. Untreated,
+ * VORP rates Brandon Aubrey near Lamar Jackson and the draft fills up with
+ * kickers. The market drafts kickers around pick 87; when the model wants one at
+ * 47, the model is wrong.
+ */
+const RELIABILITY: Record<string, number> = { QB: 1, RB: 1, WR: 1, TE: 0.95, K: 0.3, DST: 0.4 };
+
+/** Starters this league requires, used for must-fill near the end of the draft. */
+const REQUIRED: Record<string, number> = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DST: 1 };
+
+/**
  * How much a position helps given what you already have.
  *
  * Filling an empty starting slot is worth full value. Depth behind a filled slot
@@ -31,11 +51,24 @@ export function rosterNeed(
 
   const count = have[position] ?? 0;
 
+  if (count >= (HARD_CAP[position] ?? 2)) return 0;      // cannot be started, worth nothing
   if (count < dedicated) return 1;                       // still missing a starter
   if (count < dedicated + flexEligible) return 0.82;     // fills the flex
-  const CAP: Record<string, number> = { RB: 6, WR: 6, TE: 2, QB: 2, K: 1, DST: 1 };
-  if (count < (CAP[position] ?? 2)) return 0.5;          // useful depth
-  return 0.08;                                           // hoarding
+  return 0.5;                                            // useful depth
+}
+
+/**
+ * Positions that must still be filled, and whether the remaining picks only just
+ * cover them. Without this the board keeps taking the highest-scoring player
+ * available and finishes the draft with no quarterback.
+ */
+export function mustFill(
+  have: Record<string, number>,
+  picksRemaining: number
+): string[] {
+  const missing = Object.keys(REQUIRED).filter((p) => (have[p] ?? 0) < REQUIRED[p]);
+  const needed = missing.reduce((n, p) => n + (REQUIRED[p] - (have[p] ?? 0)), 0);
+  return needed >= picksRemaining ? missing : [];
 }
 
 /**
@@ -58,6 +91,8 @@ export function recommend(
     nextPick: number | null;
     picksUntilNext: number | null;
     recentPositions: Position[];
+    /** Roster spots you have left. Drives must-fill in the closing rounds. */
+    picksRemaining?: number;
   }
 ): Recommendation[] {
   const pressure: RunPressure =
@@ -65,7 +100,19 @@ export function recommend(
       ? runPressure(opts.recentPositions, baselineShares(opts.demand), opts.picksUntilNext)
       : {};
 
-  const available = players.filter((p) => !opts.draftedIds.has(p.id));
+  // In the closing rounds, filling a legal lineup outranks any amount of value.
+  const forced =
+    opts.picksRemaining != null ? mustFill(opts.myRoster, opts.picksRemaining) : [];
+
+  // Players at a hard cap are removed outright, not scored zero. Late in a draft
+  // the best remaining players have NEGATIVE value over replacement, so a
+  // zero-scored sixth defense outranks them and the roster fills with kickers.
+  const available = players.filter(
+    (p) =>
+      !opts.draftedIds.has(p.id) &&
+      (forced.includes(p.position) ||
+        rosterNeed(p.position, opts.myRoster, opts.slots) > 0)
+  );
 
   const scored = available.map((p) => {
     // ESPN ADP centres the estimate -- this league drafts on ESPN, so it predicts
@@ -75,7 +122,15 @@ export function recommend(
         ? survival(p.adp, opts.nextPick, p.position, pressure, p.ffcStdev)
         : null;
     const need = rosterNeed(p.position, opts.myRoster, opts.slots);
-    const score = p.vorp * need * (1 - 0.85 * (s ?? 0));
+    const reliability = RELIABILITY[p.position] ?? 1;
+    const urgency = forced.length && forced.includes(p.position) ? 1000 : 0;
+    const value = p.vorp * reliability * need;
+    // The survival discount is opportunity cost, which only makes sense on value
+    // you actually want. Applied to a NEGATIVE vorp it flips: multiplying by a
+    // smaller factor makes a below-replacement player look *better* the more
+    // certain he is to still be available. Below replacement, just rank by how
+    // bad the player is.
+    const score = urgency + (value > 0 ? value * (1 - 0.85 * (s ?? 0)) : value);
     return { ...p, survival: s, need, score, reason: "" };
   });
 
