@@ -241,32 +241,74 @@ td.disagree{color:var(--warn);font-weight:700}
   padding:0 .26rem;margin-left:.45rem;vertical-align:.1em;
 }
 
-/* ---------- war room ---------- */
+/* ---------- war room header ---------- */
 .dtop{
   background:linear-gradient(180deg, var(--ground-2) 0%, var(--ground) 100%);
   border-bottom:var(--bw) solid var(--ink);position:sticky;top:0;z-index:20;
 }
-.dtop-in{display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-end;padding:.9rem 0}
-.lbl{display:block;font-family:var(--f-mono);font-size:.55rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--text-2)}
-.bigpick{
-  font-family:var(--f-display);font-size:2.4rem;line-height:1;color:var(--yellow);
-  -webkit-text-stroke:4px var(--ink);paint-order:stroke fill;
-  text-shadow:4px 4px 0 var(--pink);
+.dtop-in{display:flex;flex-wrap:wrap;gap:.7rem;align-items:stretch;padding:.85rem 0}
+
+/* The pick number is the one thing you glance at mid-draft: black tile, big and plain. */
+.pickcard{
+  display:flex;flex-direction:column;justify-content:center;
+  background:#12100E;border:var(--bw) solid var(--ink);
+  box-shadow:5px 5px 0 var(--cyan);
+  padding:.5rem .95rem .55rem;min-width:7.5rem;
 }
-.dstat i,.tracking i{display:block;font-style:normal;font-family:var(--f-mono);font-size:.53rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.dstat b,.tracking b{font-family:var(--f-display);font-size:.92rem;letter-spacing:0}
-.tracking b.ok{color:var(--go)}
-.tracking b.stale{color:var(--hot)}
-.tracking em{display:block;font-style:normal;font-family:var(--f-mono);font-size:.55rem;font-weight:700;color:var(--muted)}
-.sync{margin-left:auto;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.pickcard-lbl{
+  font-family:var(--f-mono);font-size:.5rem;font-weight:700;letter-spacing:.15em;
+  text-transform:uppercase;color:#8C8279;
+}
+.pickcard-n{
+  font-family:var(--f-display);font-size:2.1rem;line-height:1.05;color:var(--cyan);
+}
+.pickcard-sub{font-family:var(--f-mono);font-size:.5rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8C8279}
+
+.dtile{
+  display:flex;flex-direction:column;justify-content:center;gap:.15rem;
+  background:var(--surface);border:var(--bw) solid var(--ink);
+  padding:.5rem .8rem;min-width:5.2rem;
+}
+.dtile i{
+  font-style:normal;font-family:var(--f-mono);font-size:.5rem;font-weight:700;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+}
+.dtile b{font-family:var(--f-display);font-size:1.15rem;letter-spacing:0;line-height:1.1}
+.dtile em{font-style:normal;font-family:var(--f-mono);font-size:.52rem;font-weight:700;color:var(--muted)}
+.t-a{box-shadow:4px 4px 0 var(--pink)}
+.t-b{box-shadow:4px 4px 0 var(--lime)}
+.t-c{box-shadow:4px 4px 0 var(--orange)}
+.t-roster{box-shadow:4px 4px 0 var(--purple)}
+.t-track{box-shadow:4px 4px 0 var(--blue)}
+.t-track b{color:var(--go)}
+.t-track.stale{box-shadow:4px 4px 0 var(--hot)}
+.t-track.stale b{color:var(--hot)}
+
+/* Roster as chips, not "QB0 RB0 WR0" -- the colour does the reading for you. */
+.rchips{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.1rem}
+.rchip{
+  display:inline-flex;align-items:center;gap:.22rem;
+  font-family:var(--f-mono);font-size:.52rem;font-weight:700;letter-spacing:.05em;
+  padding:.14rem .3rem;border:2px solid var(--ink);color:var(--ink);
+}
+.rchip b{font-family:var(--f-mono);font-size:.62rem;line-height:1}
+.rchip.QB{background:var(--qb)}
+.rchip.RB{background:var(--rb)}
+.rchip.WR{background:var(--wr)}
+.rchip.TE{background:var(--te)}
+.rchip.K{background:var(--k)}
+.rchip.DST{background:var(--dst)}
+.rchip.empty{background:var(--surface-3);color:var(--text-2);border-color:#C9BE9B}
+
+.sync{margin-left:auto;display:flex;gap:.45rem;align-items:center;flex-wrap:wrap}
 .sync .tab{
   border:var(--bw) solid var(--ink);background:var(--surface);box-shadow:3px 3px 0 var(--ink);
-  font-size:.72rem;padding:.35rem .7rem;min-width:0;
+  font-size:.7rem;padding:.35rem .7rem;min-width:0;
   transition:transform .13s ease, box-shadow .13s ease, background .13s ease, color .13s ease;
 }
 .sync .tab:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);background:var(--cyan)}
 .sync .tab[aria-pressed="true"]{background:var(--lime);color:var(--ink);text-shadow:none}
-.ago{font-family:var(--f-mono);font-size:.55rem;font-weight:700;color:var(--muted)}
+.ago{font-family:var(--f-mono);font-size:.52rem;font-weight:700;color:var(--text-2)}
 
 .recs{display:flex;flex-direction:column;gap:.9rem;margin:1.3rem 0}
 .rec{

@@ -73,31 +73,54 @@ export default function DraftClient() {
     <>
       <header className="dtop">
         <div className="wrap dtop-in">
-          <div>
-            <span className="lbl">
-              {wr.complete ? "Draft complete" : wr.isMyPick ? "You are on the clock" : "On the clock"}
+          <div className="pickcard">
+            <span className="pickcard-lbl">
+              {wr.complete ? "Draft complete" : wr.isMyPick ? "You're up" : "On the clock"}
             </span>
-            <b className="bigpick">#{wr.onTheClock}</b>
+            <b className="pickcard-n">{wr.onTheClock}</b>
+            <span className="pickcard-sub">of {wr.league.rosterSize * wr.league.size}</span>
           </div>
-          <div className="dstat"><i>Your slot</i><b>{wr.mySlot ?? "—"}</b></div>
-          <div className="dstat"><i>Your next</i><b>{wr.myNextPick ?? "—"}</b></div>
-          <div className="dstat"><i>Picks away</i><b>{wr.picksUntilMine ?? "—"}</b></div>
-          <div className="dstat"><i>Roster</i><b>{
-            ["QB","RB","WR","TE","K","DST"].map(p=>`${p}${wr.myRosterCounts[p]??0}`).join(" ")
-          }</b></div>
-          <div className="tracking">
+
+          <div className="dtile t-a">
+            <i>Your slot</i>
+            <b>{wr.mySlot ?? "—"}</b>
+          </div>
+          <div className="dtile t-b">
+            <i>Your next</i>
+            <b>{wr.myNextPick ?? "—"}</b>
+          </div>
+          <div className="dtile t-c">
+            <i>Picks away</i>
+            <b>{wr.picksUntilMine ?? "—"}</b>
+          </div>
+
+          <div className="dtile t-roster">
+            <i>Your roster</i>
+            <div className="rchips">
+              {(["QB", "RB", "WR", "TE", "K", "DST"] as const).map((p) => {
+                const n = wr.myRosterCounts[p] ?? 0;
+                return (
+                  <span key={p} className={`rchip ${p}${n === 0 ? " empty" : ""}`}>
+                    {p}
+                    <b>{n}</b>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className={`dtile t-track${trackingStale ? " stale" : ""}`}>
             <i>Auto-tracking</i>
-            <b className={trackingStale ? "stale" : "ok"}>
-              {wr.madePickCount} {wr.madePickCount === 1 ? "pick" : "picks"} in
-            </b>
+            <b>{wr.madePickCount} {wr.madePickCount === 1 ? "pick" : "picks"}</b>
             <em>
               {wr.madePickCount === 0
-                ? "waiting for the draft to start"
+                ? "waiting for the draft"
                 : lastPickAt
-                  ? `last detected ${Math.round((now - lastPickAt) / 1000)}s ago`
-                  : "reading ESPN directly"}
+                  ? `last seen ${Math.round((now - lastPickAt) / 1000)}s ago`
+                  : "reading ESPN live"}
             </em>
           </div>
+
           <div className="sync">
             <button className="tab" aria-pressed={live} onClick={() => setLive((v) => !v)}>
               {live ? "● Live" : "Paused"}
