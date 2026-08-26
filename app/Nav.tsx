@@ -10,6 +10,8 @@ const LINKS = [
 
 export default function Nav() {
   const path = usePathname();
+  // The live draft board is shared with people outside this tool; it stands alone.
+  if (path?.startsWith("/draftboard")) return null;
   return (
     <nav className="nav">
       <div className="wrap nav-in">
