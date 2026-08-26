@@ -21,6 +21,7 @@ export interface DraftState {
   myNextPick: number | null;
   picksUntilMine: number | null;
   myRoster: number[];       // playerIds I have taken so far
+  teamNames: Record<number, string>;
 }
 
 /** Overall pick number for a snake draft. */
@@ -48,7 +49,9 @@ export async function getDraftState(teams: number, rounds: number): Promise<Draf
   // Which team is mine? Match the SWID we authenticate with against team owners.
   const swid = (process.env.ESPN_SWID ?? "").toUpperCase();
   let myTeamId: number | null = null;
+  const teamNames: Record<number, string> = {};
   for (const t of raw.teams ?? []) {
+    teamNames[t.id] = t.name ?? `Team ${t.id}`;
     const owners: string[] = (t.owners ?? []).map((o: string) => String(o).toUpperCase());
     if (t.primaryOwner && String(t.primaryOwner).toUpperCase() === swid) myTeamId = t.id;
     else if (owners.includes(swid) && myTeamId == null) myTeamId = t.id;
@@ -83,6 +86,7 @@ export async function getDraftState(teams: number, rounds: number): Promise<Draf
     myNextPick,
     picksUntilMine: myNextPick == null ? null : myNextPick - nextOverall,
     myRoster: madePicks.filter((p) => p.teamId === myTeamId).map((p) => p.playerId),
+    teamNames,
   };
 }
 

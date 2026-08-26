@@ -2,10 +2,12 @@
 
 import { useMemo, useState } from "react";
 import type { Board, BoardPlayer } from "@/lib/valuation/board";
+import type { DraftOrder } from "@/lib/valuation/order";
 import type { Position } from "@/lib/espn/slots";
 import { injuryCode } from "@/lib/injury";
 import { tierBands, scarcity, highlights } from "@/lib/valuation/insights";
 import BlockClock from "./BlockClock";
+import DraftDrawer from "./DraftDrawer";
 
 const POSITIONS = ["ALL", "RB", "WR", "TE", "QB", "K", "DST"] as const;
 const SKILL: Position[] = ["RB", "WR", "TE", "QB"];
@@ -21,11 +23,39 @@ const GLIDER_GLOW: Record<string, string> = {
   DST: "rgba(100,116,139,.75)",
 };
 
-export default function BoardClient({ board }: { board: Board }) {
+type SortKey =
+  | "rank" | "name" | "vorp" | "projected" | "lastSeason"
+  | "adp" | "ffcAdp" | "edge" | "percentOwned";
+
+interface Column {
+  key: SortKey | null;
+  label: string;
+  numeric?: boolean;
+  /** Which way a first click should sort. Value columns want biggest first. */
+  first?: "asc" | "desc";
+}
+
+const COLUMNS: Column[] = [
+  { key: "rank", label: "#", numeric: true, first: "asc" },
+  { key: "name", label: "Player", first: "asc" },
+  { key: null, label: "Pos" },
+  { key: null, label: "Value", numeric: true },
+  { key: "vorp", label: "VORP", numeric: true, first: "desc" },
+  { key: "projected", label: "Proj", numeric: true, first: "desc" },
+  { key: "lastSeason", label: "2025", numeric: true, first: "desc" },
+  { key: "adp", label: "ESPN ADP", numeric: true, first: "asc" },
+  { key: "ffcAdp", label: "Market ADP", numeric: true, first: "asc" },
+  { key: "edge", label: "Edge", numeric: true, first: "desc" },
+  { key: "percentOwned", label: "Own", numeric: true, first: "desc" },
+];
+
+export default function BoardClient({ board, order }: { board: Board; order: DraftOrder | null }) {
   const [pos, setPos] = useState<(typeof POSITIONS)[number]>("ALL");
   const [q, setQ] = useState("");
+  const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" } | null>(null);
+  const [drawer, setDrawer] = useState(false);
 
-  const rows = useMemo(() => {
+  const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return board.players.filter(
       (p) =>
@@ -34,9 +64,23 @@ export default function BoardClient({ board }: { board: Board }) {
     );
   }, [board.players, pos, q]);
 
-  // Bands only mean something inside one position -- tiers are per-position, so
-  // an all-positions view stays a flat ranking.
-  const banded = pos !== "ALL" && !q.trim();
+  const rows = useMemo(() => {
+    if (!sort) return filtered;
+    const { key, dir } = sort;
+    const sign = dir === "asc" ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      const av = a[key], bv = b[key];
+      // Missing values sink to the bottom whichever way the column points.
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (typeof av === "string" && typeof bv === "string") return sign * av.localeCompare(bv);
+      return sign * ((av as number) - (bv as number));
+    });
+  }, [filtered, sort]);
+
+  // Bands only mean something inside one position, in the board's own order.
+  const banded = pos !== "ALL" && !q.trim() && !sort;
   const bands = useMemo(() => (banded ? tierBands(rows) : []), [banded, rows]);
 
   const depth = useMemo(() => scarcity(board.players, SKILL), [board.players]);
@@ -46,13 +90,28 @@ export default function BoardClient({ board }: { board: Board }) {
   const topVorp = board.players[0]?.vorp ?? 1;
   const draftDate = new Date(l.draftDate);
 
+  const toggleSort = (col: Column) => {
+    if (!col.key) return;
+    const key = col.key;
+    setSort((cur) => {
+      if (cur?.key !== key) return { key, dir: col.first ?? "desc" };
+      if (cur.dir === (col.first ?? "desc")) return { key, dir: cur.dir === "asc" ? "desc" : "asc" };
+      return null; // third click returns to the board's own ranking
+    });
+  };
+
   return (
     <>
       <header className="top">
         <div className="wrap top-in">
-          <h1 className="brand">
-            YOU <em>UGLY</em>
-          </h1>
+          <div className="brandblock">
+            <h1 className="brand">
+              YOU <em>UGLY</em>
+            </h1>
+            <p className="brandsub">
+              {l.size}-team · full PPR · RB/WR flex · ranked by value over replacement
+            </p>
+          </div>
           <BlockClock
             target={board.league.draftDate as unknown as string}
             when={draftDate.toLocaleString("en-US", {
@@ -61,14 +120,16 @@ export default function BoardClient({ board }: { board: Board }) {
             }) + " ET"}
           />
         </div>
-        <div className="facts">
-          <div className="fact"><i>Teams</i><b>{l.size}</b></div>
-          <div className="fact"><i>Scoring</i><b>Full PPR</b></div>
-          <div className="fact"><i>Flex</i><b>RB / WR</b></div>
-          <div className="fact"><i>Roster</i><b>{l.rosterSize}</b></div>
-          <div className="fact"><i>Drafted</i><b>{board.draftedCount}</b></div>
-          <div className="fact"><i>Clock</i><b>{l.pickClockSeconds}s</b></div>
-          <div className="fact"><i>Playoffs</i><b>{l.playoffTeams} of {l.size}</b></div>
+        <div className="wrap">
+          <div className="facts">
+            <div className="fact"><i>Teams</i><b>{l.size}</b></div>
+            <div className="fact"><i>Scoring</i><b>Full PPR</b></div>
+            <div className="fact"><i>Flex</i><b>RB / WR</b></div>
+            <div className="fact"><i>Roster</i><b>{l.rosterSize}</b></div>
+            <div className="fact"><i>Drafted</i><b>{board.draftedCount}</b></div>
+            <div className="fact"><i>Clock</i><b>{l.pickClockSeconds}s</b></div>
+            <div className="fact"><i>Playoffs</i><b>{l.playoffTeams} of {l.size}</b></div>
+          </div>
         </div>
       </header>
 
@@ -76,61 +137,41 @@ export default function BoardClient({ board }: { board: Board }) {
         <section className="glance">
           <div className="hi-cards">
             {hi.best && (
-              <HighlightCard
-                kind="best"
-                label="Best available"
-                name={hi.best.name}
+              <HighlightCard kind="best" label="Best available" name={hi.best.name}
                 sub={`${hi.best.team} · ${hi.best.position}${hi.best.posRank}`}
-                figure={`${hi.best.vorp.toFixed(0)} VORP`}
-                position={hi.best.position}
-              />
+                figure={`${hi.best.vorp.toFixed(0)} VORP`} position={hi.best.position} />
             )}
             {hi.steepest && (
-              <HighlightCard
-                kind="cliff"
-                label="Steepest cliff ahead"
-                name={hi.steepest.player.name}
+              <HighlightCard kind="cliff" label="Steepest cliff ahead" name={hi.steepest.player.name}
                 sub={`last in ${hi.steepest.player.position} tier ${hi.steepest.player.tier}`}
-                figure={`−${hi.steepest.cliff.toFixed(0)} after him`}
-                position={hi.steepest.player.position}
-              />
+                figure={`−${hi.steepest.cliff.toFixed(0)} after him`} position={hi.steepest.player.position} />
             )}
             {hi.bargain && (
-              <HighlightCard
-                kind="bargain"
-                label="Market is sleeping"
-                name={hi.bargain.name}
+              <HighlightCard kind="bargain" label="Market is sleeping" name={hi.bargain.name}
                 sub={`${hi.bargain.team} · goes at ${hi.bargain.adp?.toFixed(0)}`}
                 figure={`${hi.bargain.edge! > 0 ? "+" : ""}${hi.bargain.edge!.toFixed(0)} picks late`}
-                position={hi.bargain.position}
-              />
+                position={hi.bargain.position} />
             )}
           </div>
 
           <div className="scarcity">
             <div className="scarcity-h">
               <span className="lbl">Who&apos;s left</span>
-              <span className="scarcity-note">players above replacement, split by tier</span>
+              <span className="scarcity-note">above replacement, split by tier</span>
             </div>
-            {depth.map((d) => {
-              const total = d.aboveReplacement || 1;
-              return (
-                <div className="sc-row" key={d.position}>
-                  <span className={`pos ${d.position}`}>{d.position}</span>
-                  <div className={`sc-bar ${d.position}`}>
-                    {d.tiers.map((t) => (
-                      <span
-                        key={t.tier}
-                        className="sc-seg"
-                        style={{ flexGrow: t.count, opacity: Math.max(0.28, 1 - (t.tier - 1) * 0.16) }}
-                        title={`Tier ${t.tier}: ${t.count} player${t.count === 1 ? "" : "s"}`}
-                      />
-                    ))}
-                  </div>
-                  <span className="sc-total">{total}</span>
+            {depth.map((d) => (
+              <div className="sc-row" key={d.position}>
+                <span className={`pos ${d.position}`}>{d.position}</span>
+                <div className={`sc-bar ${d.position}`}>
+                  {d.tiers.map((t) => (
+                    <span key={t.tier} className="sc-seg"
+                      style={{ flexGrow: t.count, opacity: Math.max(0.28, 1 - (t.tier - 1) * 0.16) }}
+                      title={`Tier ${t.tier}: ${t.count} player${t.count === 1 ? "" : "s"}`} />
+                  ))}
                 </div>
-              );
-            })}
+                <span className="sc-total">{d.aboveReplacement}</span>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -149,16 +190,11 @@ export default function BoardClient({ board }: { board: Board }) {
         </div>
 
         <div className="controls">
-          <div
-            className="tabs"
-            style={
-              {
-                "--tab-count": POSITIONS.length,
-                "--tab-i": POSITIONS.indexOf(pos),
-                "--glider-glow": GLIDER_GLOW[pos],
-              } as React.CSSProperties
-            }
-          >
+          <div className="tabs" style={{
+            "--tab-count": POSITIONS.length,
+            "--tab-i": POSITIONS.indexOf(pos),
+            "--glider-glow": GLIDER_GLOW[pos],
+          } as React.CSSProperties}>
             {POSITIONS.map((p) => (
               <button key={p} className="tab" aria-pressed={pos === p} onClick={() => setPos(p)}>
                 {p}
@@ -166,13 +202,17 @@ export default function BoardClient({ board }: { board: Board }) {
             ))}
             <span className="glider" aria-hidden="true" />
           </div>
-          <input
-            className="search"
-            placeholder="Search player…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+          <input className="search" placeholder="Search player…" value={q}
+            onChange={(e) => setQ(e.target.value)} />
+          {sort && (
+            <button className="clearsort" onClick={() => setSort(null)}>
+              {COLUMNS.find((c) => c.key === sort.key)?.label} ✕
+            </button>
+          )}
           <span className="count">{rows.length} shown</span>
+          <button className="drawerbtn" onClick={() => setDrawer(true)} aria-expanded={drawer}>
+            Draft order
+          </button>
         </div>
 
         <div className="tablewrap">
@@ -180,17 +220,20 @@ export default function BoardClient({ board }: { board: Board }) {
           <table>
             <thead>
               <tr>
-                <th className="n">#</th>
-                <th>Player</th>
-                <th>Pos</th>
-                <th className="n">Value</th>
-                <th className="n">VORP</th>
-                <th className="n">Proj</th>
-                <th className="n">2025</th>
-                <th className="n">ESPN ADP</th>
-                <th className="n">Market ADP</th>
-                <th className="n">Edge</th>
-                <th className="n">Own</th>
+                {COLUMNS.map((c) => {
+                  const active = c.key !== null && sort?.key === c.key;
+                  return (
+                    <th key={c.label} className={c.numeric ? "n" : undefined}
+                        aria-sort={active ? (sort!.dir === "asc" ? "ascending" : "descending") : undefined}>
+                      {c.key ? (
+                        <button className={`sortbtn${active ? " on" : ""}`} onClick={() => toggleSort(c)}>
+                          {c.label}
+                          <span className="sortmark">{active ? (sort!.dir === "asc" ? "▲" : "▼") : "⇅"}</span>
+                        </button>
+                      ) : c.label}
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
@@ -210,6 +253,8 @@ export default function BoardClient({ board }: { board: Board }) {
           updated {new Date(board.generatedAt).toLocaleTimeString("en-US")}
         </footer>
       </main>
+
+      <DraftDrawer order={order} open={drawer} onClose={() => setDrawer(false)} />
     </>
   );
 }
@@ -247,9 +292,7 @@ function BandGroup({ band, topVorp }: { band: ReturnType<typeof tierBands>[numbe
             {belowReplacement ? " · waiver pool" : ""}
           </span>
           {band.cliff != null && band.cliff > 0.5 && (
-            <span className="band-cliff">
-              {band.cliff.toFixed(1)} point drop after this tier
-            </span>
+            <span className="band-cliff">{band.cliff.toFixed(1)} point drop after this tier</span>
           )}
         </td>
       </tr>
@@ -269,8 +312,6 @@ function Row({ p, topVorp }: { p: BoardPlayer; topVorp: number }) {
   // signal: ESPN leagues draft some players much earlier than the wider market.
   const gap = p.adp != null && p.ffcAdp != null ? p.ffcAdp - p.adp : null;
   const gapClass = gap == null ? "" : Math.abs(gap) >= 7 ? "disagree" : "";
-  // Last season against this season's projection: the context that makes a
-  // forecast mean something. A big gap either way is worth a second look.
   const delta = p.lastSeason != null && p.projected != null ? p.projected - p.lastSeason : null;
 
   return (
@@ -303,9 +344,7 @@ function Row({ p, topVorp }: { p: BoardPlayer; topVorp: number }) {
           <>
             {p.lastSeason.toFixed(0)}
             {delta != null && Math.abs(delta) >= 25 && (
-              <span className={delta > 0 ? "trend up" : "trend down"}>
-                {delta > 0 ? "▲" : "▼"}
-              </span>
+              <span className={delta > 0 ? "trend up" : "trend down"}>{delta > 0 ? "▲" : "▼"}</span>
             )}
           </>
         )}
