@@ -6,6 +6,7 @@ import type { Position } from "../espn/slots";
 import { getFfcAdp } from "../sources/ffc";
 import { getSleeperProjections } from "../sources/sleeper";
 import { playerKey } from "../sources/names";
+import { getUsage, tdFlag, type TdFlag } from "../sources/usage";
 
 export interface BoardPlayer extends PlayerRow {
   vorp: number;
@@ -17,6 +18,10 @@ export interface BoardPlayer extends PlayerRow {
   posRank: number;     // rank within position by VORP
   tier: number;        // tier within position
   edge: number | null; // ADP minus VORP rank. positive = market lets him fall
+  /** Last season's role. Context only -- none of this moves the ranking. */
+  targetShare: number | null;
+  snapShare: number | null;
+  tdFlag: TdFlag | null;
 }
 
 export interface Board {
@@ -79,7 +84,9 @@ export async function buildBoard(): Promise<Board> {
     .map((p) => ({ ...p, vorp: vorp(p, levels)! }))
     .sort((a, b) => b.vorp - a.vorp);
 
+  const usage = getUsage();
   const players: BoardPlayer[] = scored.map((p, i) => {
+    const u = usage.get(p.id);
     const m =
       ffc.get(playerKey(p.name, p.position)) ??
       (p.position === "DST" && p.team ? ffc.get(`DST|${p.team}`) : undefined);
@@ -91,6 +98,9 @@ export async function buildBoard(): Promise<Board> {
       edge: p.adp != null ? p.adp - (i + 1) : null,
       ffcAdp: m?.adp ?? null,
       ffcStdev: m?.stdev ?? null,
+      targetShare: u?.targetShare ?? null,
+      snapShare: u?.snapShare ?? null,
+      tdFlag: tdFlag(u),
     };
   });
 

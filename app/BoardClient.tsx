@@ -347,6 +347,21 @@ function Row({ p, topVorp }: { p: BoardPlayer; topVorp: number }) {
         <div className="psub">
           {p.team || "FA"} <span className="dot">·</span> {p.position}{p.posRank}{" "}
           <span className="dot">·</span> Tier {p.tier}
+          {p.snapShare != null && (
+            <>
+              {" "}<span className="dot">·</span> {(p.snapShare * 100).toFixed(0)}% snaps
+            </>
+          )}
+          {p.targetShare != null && p.targetShare > 0.02 && (
+            <>
+              {" "}<span className="dot">·</span> {(p.targetShare * 100).toFixed(0)}% tgt
+            </>
+          )}
+          {p.tdFlag && (
+            <span className={`tdflag ${p.tdFlag.kind}`} title={p.tdFlag.text}>
+              {p.tdFlag.kind === "hot" ? "TD▲" : "TD▼"}
+            </span>
+          )}
         </div>
       </td>
       <td><span className={`pos ${p.position}`}>{p.position}</span></td>

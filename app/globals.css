@@ -712,3 +712,11 @@ th.n .sortbtn{flex-direction:row-reverse}
   border-top:1px dashed var(--line);
   font-size:.62rem;color:var(--muted);
 }
+
+/* prior-season regression flag -- context, never a ranking input */
+.tdflag{
+  display:inline-block;margin-left:.4rem;font-family:var(--f-mono);font-size:.6rem;
+  font-weight:700;padding:0 .28rem;border-radius:5px;border:1px solid;cursor:help;
+}
+.tdflag.hot{color:var(--warn-fg);background:var(--te-bg);border-color:var(--te-bd)}
+.tdflag.cold{color:var(--wr-fg);background:var(--wr-bg);border-color:var(--wr-bd)}
