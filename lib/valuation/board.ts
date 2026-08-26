@@ -7,6 +7,7 @@ import { getFfcAdp } from "../sources/ffc";
 import { getSleeperProjections } from "../sources/sleeper";
 import { playerKey } from "../sources/names";
 import { getUsage, tdFlag, type TdFlag } from "../sources/usage";
+import { outcomeBand, type OutcomeBand } from "./outcomes";
 
 export interface BoardPlayer extends PlayerRow {
   vorp: number;
@@ -22,6 +23,8 @@ export interface BoardPlayer extends PlayerRow {
   targetShare: number | null;
   snapShare: number | null;
   tdFlag: TdFlag | null;
+  /** Empirical range around the projection. Context, not a ranking input. */
+  band: OutcomeBand | null;
 }
 
 export interface Board {
@@ -101,6 +104,7 @@ export async function buildBoard(): Promise<Board> {
       targetShare: u?.targetShare ?? null,
       snapShare: u?.snapShare ?? null,
       tdFlag: tdFlag(u),
+      band: outcomeBand(p.projected, p.position),
     };
   });
 

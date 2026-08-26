@@ -373,7 +373,14 @@ function Row({ p, topVorp }: { p: BoardPlayer; topVorp: number }) {
         </span>
       </td>
       <td className="n v">{p.vorp.toFixed(1)}</td>
-      <td className="n mono">{p.projected?.toFixed(1)}</td>
+      <td className="n">
+        <span className="mono">{p.projected?.toFixed(1)}</span>
+        {p.band && (
+          <span className="range" title={`Measured on 2025 outcomes: a quarter of players at this projection finished under ${p.band.floor.toFixed(0)}, a tenth finished over ${p.band.ceiling.toFixed(0)}`}>
+            {p.band.floor.toFixed(0)}–{p.band.ceiling.toFixed(0)}
+          </span>
+        )}
+      </td>
       <td className="n mono">
         {p.lastSeason == null || p.lastSeason === 0 ? (
           <span className="rookie">rookie</span>

@@ -720,3 +720,9 @@ th.n .sortbtn{flex-direction:row-reverse}
 }
 .tdflag.hot{color:var(--warn-fg);background:var(--te-bg);border-color:var(--te-bd)}
 .tdflag.cold{color:var(--wr-fg);background:var(--wr-bg);border-color:var(--wr-bd)}
+
+/* empirical outcome range beneath a projection */
+.range{
+  display:block;font-family:var(--f-mono);font-size:.62rem;color:var(--muted);
+  font-variant-numeric:tabular-nums;margin-top:.05rem;cursor:help;
+}
