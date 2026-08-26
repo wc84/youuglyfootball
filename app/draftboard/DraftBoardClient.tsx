@@ -79,7 +79,7 @@ export default function DraftBoardClient({ initial }: { initial: LiveBoard | nul
             <img src="/youugly-logo.png" alt="You Ugly Football"
                  className="db-logo" onError={() => setLogoOk(false)} />
           ) : (
-            <span className="db-wordmark">YOU <em>UGLY</em></span>
+            <span className="db-wordmark">YOU <em>UGLY</em><small>FOOTBALL</small></span>
           )}
         </div>
         <div className="db-title">

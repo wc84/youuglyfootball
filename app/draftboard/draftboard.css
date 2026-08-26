@@ -76,9 +76,21 @@
 }
 .db-logo{height:78px;width:auto;display:block;filter:drop-shadow(0 6px 22px rgba(190,242,100,.22))}
 .db-wordmark{
-  font-family:var(--f-d);font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--ink);
+  display:inline-flex;flex-direction:column;align-items:flex-start;gap:.1rem;
+  padding:.5rem .8rem;border:1px solid var(--edge-2);border-radius:12px;
+  background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 10px 30px rgba(0,0,0,.45);
+  font-family:var(--f-d);font-size:1.32rem;font-weight:700;letter-spacing:-.02em;
+  line-height:.98;color:var(--ink);
 }
-.db-wordmark em{font-style:normal;color:var(--lime)}
+.db-wordmark em{
+  font-style:normal;letter-spacing:.02em;
+  background:linear-gradient(100deg,var(--lime),#FFD34D 65%,var(--ember));
+  -webkit-background-clip:text;background-clip:text;color:var(--lime);
+}
+@supports ((-webkit-background-clip:text) or (background-clip:text)) {
+  .db-wordmark em{color:transparent}
+}
 .db-title{text-align:center}
 .db-title h1{
   margin:.25rem 0 0;font-family:var(--f-d);font-size:clamp(1.4rem,3vw,2.1rem);
@@ -357,4 +369,9 @@ body:has(.db) {
 @supports ((-webkit-background-clip:text) or (background-clip:text)) {
   .db-oc-name:not(.dim),
   .db-grade-l { color:transparent; }
+}
+
+.db-wordmark small{
+  font-family:var(--f-m);font-size:.5rem;font-weight:400;
+  letter-spacing:.34em;text-transform:uppercase;color:var(--ink-3);
 }
