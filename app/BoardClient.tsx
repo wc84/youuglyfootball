@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import type { Board, BoardPlayer } from "@/lib/valuation/board";
+import type { Position } from "@/lib/espn/slots";
 import { injuryCode } from "@/lib/injury";
+import { tierBands, scarcity, highlights } from "@/lib/valuation/insights";
 import BlockClock from "./BlockClock";
 
 const POSITIONS = ["ALL", "RB", "WR", "TE", "QB", "K", "DST"] as const;
+const SKILL: Position[] = ["RB", "WR", "TE", "QB"];
 
 /** The sliding pill throws a glow in whatever position is selected. */
 const GLIDER_GLOW: Record<string, string> = {
@@ -30,6 +33,14 @@ export default function BoardClient({ board }: { board: Board }) {
         (!needle || p.name.toLowerCase().includes(needle))
     );
   }, [board.players, pos, q]);
+
+  // Bands only mean something inside one position -- tiers are per-position, so
+  // an all-positions view stays a flat ranking.
+  const banded = pos !== "ALL" && !q.trim();
+  const bands = useMemo(() => (banded ? tierBands(rows) : []), [banded, rows]);
+
+  const depth = useMemo(() => scarcity(board.players, SKILL), [board.players]);
+  const hi = useMemo(() => highlights(board.players), [board.players]);
 
   const l = board.league;
   const topVorp = board.players[0]?.vorp ?? 1;
@@ -62,6 +73,67 @@ export default function BoardClient({ board }: { board: Board }) {
       </header>
 
       <main className="wrap">
+        <section className="glance">
+          <div className="hi-cards">
+            {hi.best && (
+              <HighlightCard
+                kind="best"
+                label="Best available"
+                name={hi.best.name}
+                sub={`${hi.best.team} · ${hi.best.position}${hi.best.posRank}`}
+                figure={`${hi.best.vorp.toFixed(0)} VORP`}
+                position={hi.best.position}
+              />
+            )}
+            {hi.steepest && (
+              <HighlightCard
+                kind="cliff"
+                label="Steepest cliff ahead"
+                name={hi.steepest.player.name}
+                sub={`last in ${hi.steepest.player.position} tier ${hi.steepest.player.tier}`}
+                figure={`−${hi.steepest.cliff.toFixed(0)} after him`}
+                position={hi.steepest.player.position}
+              />
+            )}
+            {hi.bargain && (
+              <HighlightCard
+                kind="bargain"
+                label="Market is sleeping"
+                name={hi.bargain.name}
+                sub={`${hi.bargain.team} · goes at ${hi.bargain.adp?.toFixed(0)}`}
+                figure={`${hi.bargain.edge! > 0 ? "+" : ""}${hi.bargain.edge!.toFixed(0)} picks late`}
+                position={hi.bargain.position}
+              />
+            )}
+          </div>
+
+          <div className="scarcity">
+            <div className="scarcity-h">
+              <span className="lbl">Who&apos;s left</span>
+              <span className="scarcity-note">players above replacement, split by tier</span>
+            </div>
+            {depth.map((d) => {
+              const total = d.aboveReplacement || 1;
+              return (
+                <div className="sc-row" key={d.position}>
+                  <span className={`pos ${d.position}`}>{d.position}</span>
+                  <div className={`sc-bar ${d.position}`}>
+                    {d.tiers.map((t) => (
+                      <span
+                        key={t.tier}
+                        className="sc-seg"
+                        style={{ flexGrow: t.count, opacity: Math.max(0.28, 1 - (t.tier - 1) * 0.16) }}
+                        title={`Tier ${t.tier}: ${t.count} player${t.count === 1 ? "" : "s"}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="sc-total">{total}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
         <div className="repl">
           {["QB", "RB", "WR", "TE", "K", "DST"].map((p) => {
             const lv = board.levels[p];
@@ -111,20 +183,22 @@ export default function BoardClient({ board }: { board: Board }) {
                 <th className="n">#</th>
                 <th>Player</th>
                 <th>Pos</th>
-                <th className="n">Tier</th>
                 <th className="n">Value</th>
                 <th className="n">VORP</th>
                 <th className="n">Proj</th>
+                <th className="n">2025</th>
                 <th className="n">ESPN ADP</th>
-                <th className="n">Real ADP</th>
+                <th className="n">Market ADP</th>
                 <th className="n">Edge</th>
                 <th className="n">Own</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((p, i) => (
-                <Row key={p.id} p={p} prev={rows[i - 1]} showBreak={pos !== "ALL"} topVorp={topVorp} />
-              ))}
+              {banded
+                ? bands.map((band) => (
+                    <BandGroup key={`${band.position}-${band.tier}`} band={band} topVorp={topVorp} />
+                  ))
+                : rows.map((p) => <Row key={p.id} p={p} topVorp={topVorp} />)}
             </tbody>
           </table>
           </div>
@@ -140,29 +214,79 @@ export default function BoardClient({ board }: { board: Board }) {
   );
 }
 
-function Row({
-  p, prev, showBreak, topVorp,
-}: { p: BoardPlayer; prev?: BoardPlayer; showBreak: boolean; topVorp: number }) {
+function HighlightCard({
+  kind, label, name, sub, figure, position,
+}: { kind: string; label: string; name: string; sub: string; figure: string; position: Position }) {
+  return (
+    <article className={`hi hi-${kind}`}>
+      <span className="lbl">{label}</span>
+      <div className="hi-name">
+        {name}
+        <span className={`pos ${position}`}>{position}</span>
+      </div>
+      <div className="hi-sub">{sub}</div>
+      <div className="hi-fig">{figure}</div>
+    </article>
+  );
+}
+
+function BandGroup({ band, topVorp }: { band: ReturnType<typeof tierBands>[number]; topVorp: number }) {
+  // The trailing band is everyone at or below replacement. Numbering it like the
+  // others implies it is a tier you might draft from; it is the pool you stream
+  // out of instead.
+  const belowReplacement = band.players.every((p) => p.vorp <= 0);
+  return (
+    <>
+      <tr className={belowReplacement ? "bandrow tail" : "bandrow"}>
+        <td colSpan={11}>
+          <span className={`band-tier ${belowReplacement ? "below" : band.position}`}>
+            {belowReplacement ? "Below replacement" : `Tier ${band.tier}`}
+          </span>
+          <span className="band-count">
+            {band.players.length} player{band.players.length === 1 ? "" : "s"}
+            {belowReplacement ? " · waiver pool" : ""}
+          </span>
+          {band.cliff != null && band.cliff > 0.5 && (
+            <span className="band-cliff">
+              {band.cliff.toFixed(1)} point drop after this tier
+            </span>
+          )}
+        </td>
+      </tr>
+      {band.players.map((p) => (
+        <Row key={p.id} p={p} topVorp={topVorp} />
+      ))}
+    </>
+  );
+}
+
+function Row({ p, topVorp }: { p: BoardPlayer; topVorp: number }) {
   // Eight bars scaled against the best player on the board, so the column reads
   // as relative value at a glance before you parse the number next to it.
   const meterBars = Math.max(0, Math.min(8, Math.round((p.vorp / (topVorp || 1)) * 8)));
-  const tierBreak = showBreak && prev && prev.tier !== p.tier;
   const edgeClass = p.edge == null ? "flat" : p.edge >= 8 ? "up" : p.edge <= -8 ? "down" : "flat";
   // Where ESPN and real-draft ADP disagree badly, that disagreement is itself a
   // signal: ESPN leagues draft some players much earlier than the wider market.
   const gap = p.adp != null && p.ffcAdp != null ? p.ffcAdp - p.adp : null;
   const gapClass = gap == null ? "" : Math.abs(gap) >= 7 ? "disagree" : "";
+  // Last season against this season's projection: the context that makes a
+  // forecast mean something. A big gap either way is worth a second look.
+  const delta = p.lastSeason != null && p.projected != null ? p.projected - p.lastSeason : null;
+
   return (
-    <tr className={tierBreak ? "tierbreak" : undefined}>
+    <tr>
       <td className="n rk">{p.rank}</td>
       <td>
-        <span className="nm">{p.name}</span>
-        {injuryCode(p.injuryStatus) && (
-          <span className="inj">{injuryCode(p.injuryStatus)}</span>
-        )}
+        <div className="pcell">
+          <span className="nm">{p.name}</span>
+          {injuryCode(p.injuryStatus) && <span className="inj">{injuryCode(p.injuryStatus)}</span>}
+        </div>
+        <div className="psub">
+          {p.team || "FA"} <span className="dot">·</span> {p.position}{p.posRank}{" "}
+          <span className="dot">·</span> Tier {p.tier}
+        </div>
       </td>
       <td><span className={`pos ${p.position}`}>{p.position}</span></td>
-      <td className="n tierchip">{p.position}·T{p.tier}</td>
       <td className="n">
         <span className="meter" aria-hidden="true">
           {Array.from({ length: 8 }, (_, i) => (
@@ -172,6 +296,20 @@ function Row({
       </td>
       <td className="n v">{p.vorp.toFixed(1)}</td>
       <td className="n mono">{p.projected?.toFixed(1)}</td>
+      <td className="n mono">
+        {p.lastSeason == null || p.lastSeason === 0 ? (
+          <span className="rookie">rookie</span>
+        ) : (
+          <>
+            {p.lastSeason.toFixed(0)}
+            {delta != null && Math.abs(delta) >= 25 && (
+              <span className={delta > 0 ? "trend up" : "trend down"}>
+                {delta > 0 ? "▲" : "▼"}
+              </span>
+            )}
+          </>
+        )}
+      </td>
       <td className="n mono">{p.adp ? p.adp.toFixed(1) : "—"}</td>
       <td className={`n mono ${gapClass}`}>
         {p.ffcAdp ? p.ffcAdp.toFixed(1) : "—"}
