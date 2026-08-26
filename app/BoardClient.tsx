@@ -7,15 +7,15 @@ import BlockClock from "./BlockClock";
 
 const POSITIONS = ["ALL", "RB", "WR", "TE", "QB", "K", "DST"] as const;
 
-/** The sliding indicator takes the colour of whatever position is selected. */
-const GLIDER: Record<string, string> = {
-  ALL: "var(--pink)",
-  RB: "var(--rb)",
-  WR: "var(--wr)",
-  TE: "var(--te)",
-  QB: "var(--qb)",
-  K: "var(--k)",
-  DST: "var(--dst)",
+/** The sliding pill throws a glow in whatever position is selected. */
+const GLIDER_GLOW: Record<string, string> = {
+  ALL: "rgba(99,102,241,.75)",
+  RB: "rgba(16,185,129,.75)",
+  WR: "rgba(59,130,246,.75)",
+  TE: "rgba(245,158,11,.75)",
+  QB: "rgba(244,63,94,.75)",
+  K: "rgba(139,92,246,.75)",
+  DST: "rgba(100,116,139,.75)",
 };
 
 export default function BoardClient({ board }: { board: Board }) {
@@ -83,7 +83,7 @@ export default function BoardClient({ board }: { board: Board }) {
               {
                 "--tab-count": POSITIONS.length,
                 "--tab-i": POSITIONS.indexOf(pos),
-                "--glider-c": GLIDER[pos],
+                "--glider-glow": GLIDER_GLOW[pos],
               } as React.CSSProperties
             }
           >
