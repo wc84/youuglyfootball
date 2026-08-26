@@ -5,12 +5,13 @@ import type { Board, BoardPlayer } from "@/lib/valuation/board";
 import type { DraftOrder } from "@/lib/valuation/order";
 import type { Position } from "@/lib/espn/slots";
 import { injuryCode } from "@/lib/injury";
-import { tierBands, scarcity, highlights } from "@/lib/valuation/insights";
+import { tierBands, scarcity, highlights, bestByPosition } from "@/lib/valuation/insights";
 import BlockClock from "./BlockClock";
 import DraftDrawer from "./DraftDrawer";
 
 const POSITIONS = ["ALL", "RB", "WR", "TE", "QB", "K", "DST"] as const;
 const SKILL: Position[] = ["RB", "WR", "TE", "QB"];
+const ALL_POS: Position[] = ["RB", "WR", "TE", "QB", "K", "DST"];
 
 /** The sliding pill throws a glow in whatever position is selected. */
 const GLIDER_GLOW: Record<string, string> = {
@@ -85,6 +86,7 @@ export default function BoardClient({ board, order }: { board: Board; order: Dra
 
   const depth = useMemo(() => scarcity(board.players, SKILL), [board.players]);
   const hi = useMemo(() => highlights(board.players), [board.players]);
+  const best = useMemo(() => bestByPosition(board.players, ALL_POS), [board.players]);
 
   const l = board.league;
   const topVorp = board.players[0]?.vorp ?? 1;
@@ -176,14 +178,34 @@ export default function BoardClient({ board, order }: { board: Board; order: Dra
         </section>
 
         <div className="repl">
-          {["QB", "RB", "WR", "TE", "K", "DST"].map((p) => {
-            const lv = board.levels[p];
-            if (!lv) return null;
+          {best.map((b) => {
+            const lv = board.levels[b.position];
+            if (!b.best) return null;
             return (
-              <div className="repl-cell" key={p}>
-                <i>Replacement {p}</i>
-                <b>{p}{lv.rank} · {lv.points.toFixed(1)}</b>
-                <em>{lv.player}</em>
+              <div className={`repl-cell pb ${b.position}`} key={b.position}>
+                <div className="pb-top">
+                  <span className={`pos ${b.position}`}>{b.position}</span>
+                  <span className="pb-left">{b.aboveReplacement} left</span>
+                </div>
+                <b className="pb-name">{b.best.name}</b>
+                <span className="pb-team">
+                  {b.best.team || "FA"} · tier {b.best.tier}
+                  {b.tierMates > 1 ? ` · ${b.tierMates} in tier` : " · alone in tier"}
+                </span>
+                <div className="pb-fig">
+                  <span className="pb-vorp">{b.best.vorp.toFixed(0)}</span>
+                  <span className="pb-vorp-l">VORP</span>
+                  {b.cliff != null && b.cliff > 0.5 && (
+                    <span className="pb-cliff" title="Points of value lost if you wait past his tier">
+                      −{b.cliff.toFixed(0)} if you wait
+                    </span>
+                  )}
+                </div>
+                {lv && (
+                  <span className="pb-repl">
+                    free agent baseline: {b.position}{lv.rank} · {lv.points.toFixed(0)}
+                  </span>
+                )}
               </div>
             );
           })}

@@ -102,3 +102,39 @@ export function highlights(players: BoardPlayer[]): Highlight {
 
   return { best, steepest, bargain };
 }
+
+export interface PositionBest {
+  position: Position;
+  best: BoardPlayer | null;
+  /** Points of VORP lost by waiting past this player's tier. */
+  cliff: number | null;
+  /** How many others share his tier -- how much room you actually have. */
+  tierMates: number;
+  aboveReplacement: number;
+}
+
+/**
+ * Best available at each position, and what waiting past his tier costs.
+ *
+ * This is the question a draft board is asked over and over: not "who is the best
+ * player" but "if I take a receiver now instead of a back, what do I give up?" The
+ * cliff answers it directly -- take the last man in a tier and the drop behind him
+ * is what the next manager pays.
+ */
+export function bestByPosition(players: BoardPlayer[], order: Position[]): PositionBest[] {
+  return order.map((position) => {
+    const pool = players.filter((p) => p.position === position);
+    const best = pool[0] ?? null;
+    if (!best) {
+      return { position, best: null, cliff: null, tierMates: 0, aboveReplacement: 0 };
+    }
+    const band = tierBands(pool).find((b) => b.tier === best.tier && b.players.includes(best));
+    return {
+      position,
+      best,
+      cliff: band?.cliff ?? null,
+      tierMates: band ? band.players.length : 1,
+      aboveReplacement: pool.filter((p) => p.vorp > 0).length,
+    };
+  });
+}
