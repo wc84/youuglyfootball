@@ -11,7 +11,7 @@ export default function DraftBoardClient({ initial }: { initial: LiveBoard | nul
   const [now, setNow] = useState(0);
   const [flash, setFlash] = useState<number | null>(null);
   const [hover, setHover] = useState<BoardPick | null>(null);
-  const [logoOk, setLogoOk] = useState(true);
+  const [logoOk, setLogoOk] = useState(false);
 
   // When the pick count moves, the clock restarts. ESPN does not publish a pick
   // deadline, so the turn is timed from the moment we first see the board change.
@@ -46,6 +46,14 @@ export default function DraftBoardClient({ initial }: { initial: LiveBoard | nul
     return () => clearInterval(t);
   }, []);
 
+  // Ask whether the logo exists before putting it on the page. Shipping the tag
+  // and waiting for onError shows every viewer a broken image first.
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setLogoOk(true);
+    img.src = "/youugly-logo.png";
+  }, []);
+
   if (!b) {
     return (
       <div className="db">
@@ -76,8 +84,7 @@ export default function DraftBoardClient({ initial }: { initial: LiveBoard | nul
       <header className="db-top">
         <div className="db-brand">
           {logoOk ? (
-            <img src="/youugly-logo.png" alt="You Ugly Football"
-                 className="db-logo" onError={() => setLogoOk(false)} />
+            <img src="/youugly-logo.png" alt="You Ugly Football" className="db-logo" />
           ) : (
             <span className="db-wordmark">YOU <em>UGLY</em><small>FOOTBALL</small></span>
           )}
