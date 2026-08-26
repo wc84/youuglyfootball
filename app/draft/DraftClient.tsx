@@ -176,6 +176,7 @@ export default function DraftClient() {
 
         <div className="split">
           <div className="tablewrap">
+            <div>
             <table>
               <thead>
                 <tr>
@@ -200,6 +201,7 @@ export default function DraftClient() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
 
           <aside className="feed">

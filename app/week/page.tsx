@@ -67,6 +67,7 @@ export default async function WeekPage(props: { searchParams: Promise<{ week?: s
 
       <h2 className="wk-h2">Start</h2>
       <div className="tablewrap">
+        <div>
         <table>
           <thead>
             <tr><th>Slot</th><th>Player</th><th>Pos</th><th className="n">Proj</th><th className="n">Range</th><th className="n">Plays</th></tr>
@@ -87,10 +88,12 @@ export default async function WeekPage(props: { searchParams: Promise<{ week?: s
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <h2 className="wk-h2">Sit</h2>
       <div className="tablewrap">
+        <div>
         <table>
           <thead>
             <tr><th>Player</th><th>Pos</th><th className="n">Proj</th><th className="n">Range</th><th className="n">Plays</th></tr>
@@ -110,6 +113,7 @@ export default async function WeekPage(props: { searchParams: Promise<{ week?: s
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {view.concerns.length > 0 && (

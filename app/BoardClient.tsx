@@ -32,6 +32,7 @@ export default function BoardClient({ board }: { board: Board }) {
   }, [board.players, pos, q]);
 
   const l = board.league;
+  const topVorp = board.players[0]?.vorp ?? 1;
   const draftDate = new Date(l.draftDate);
 
   return (
@@ -103,6 +104,7 @@ export default function BoardClient({ board }: { board: Board }) {
         </div>
 
         <div className="tablewrap">
+          <div>
           <table>
             <thead>
               <tr>
@@ -110,6 +112,7 @@ export default function BoardClient({ board }: { board: Board }) {
                 <th>Player</th>
                 <th>Pos</th>
                 <th className="n">Tier</th>
+                <th className="n">Value</th>
                 <th className="n">VORP</th>
                 <th className="n">Proj</th>
                 <th className="n">ESPN ADP</th>
@@ -120,10 +123,11 @@ export default function BoardClient({ board }: { board: Board }) {
             </thead>
             <tbody>
               {rows.map((p, i) => (
-                <Row key={p.id} p={p} prev={rows[i - 1]} showBreak={pos !== "ALL"} />
+                <Row key={p.id} p={p} prev={rows[i - 1]} showBreak={pos !== "ALL"} topVorp={topVorp} />
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         <footer>
@@ -136,7 +140,12 @@ export default function BoardClient({ board }: { board: Board }) {
   );
 }
 
-function Row({ p, prev, showBreak }: { p: BoardPlayer; prev?: BoardPlayer; showBreak: boolean }) {
+function Row({
+  p, prev, showBreak, topVorp,
+}: { p: BoardPlayer; prev?: BoardPlayer; showBreak: boolean; topVorp: number }) {
+  // Eight bars scaled against the best player on the board, so the column reads
+  // as relative value at a glance before you parse the number next to it.
+  const meterBars = Math.max(0, Math.min(8, Math.round((p.vorp / (topVorp || 1)) * 8)));
   const tierBreak = showBreak && prev && prev.tier !== p.tier;
   const edgeClass = p.edge == null ? "flat" : p.edge >= 8 ? "up" : p.edge <= -8 ? "down" : "flat";
   // Where ESPN and real-draft ADP disagree badly, that disagreement is itself a
@@ -154,6 +163,13 @@ function Row({ p, prev, showBreak }: { p: BoardPlayer; prev?: BoardPlayer; showB
       </td>
       <td><span className={`pos ${p.position}`}>{p.position}</span></td>
       <td className="n tierchip">{p.position}·T{p.tier}</td>
+      <td className="n">
+        <span className="meter" aria-hidden="true">
+          {Array.from({ length: 8 }, (_, i) => (
+            <i key={i} className={i < meterBars ? "on" : undefined} />
+          ))}
+        </span>
+      </td>
       <td className="n v">{p.vorp.toFixed(1)}</td>
       <td className="n mono">{p.projected?.toFixed(1)}</td>
       <td className="n mono">{p.adp ? p.adp.toFixed(1) : "—"}</td>
