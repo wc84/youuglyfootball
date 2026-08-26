@@ -61,6 +61,37 @@ const RELIABILITY: Record<string, number> = { QB: 1, RB: 1, WR: 1, TE: 0.95, K: 
 const SURVIVAL_WEIGHT = 0;
 
 /**
+ * How hard to prefer the last man in a tier.
+ *
+ * The blueprint's phrasing is "draft the last player in a valuable tier; do not
+ * copy the position selected immediately before you." Plain VORP ordering half
+ * does this -- the last man in a tier outranks the first of the next by
+ * definition -- but it has no sense of the cliff *behind* him. Taking the only
+ * player left in a tier means the manager after you pays the drop; leaving him
+ * means you do. This adds a share of that cliff to his score when he is the last
+ * one standing in his tier.
+ *
+ * Weight measured across 400 simulated drafts per setting:
+ *   0    31.34%      1.5  32.99%      3.0  33.69%
+ *   0.5  31.87%      2.0  33.30%      4.0  32.64%
+ *   1.0  32.29%      2.5  33.45%
+ * A clean rise and turnover, which noise does not produce. Set at 2.5 rather than
+ * the apparent 3.0 peak: the curve is flat from 2.0 to 3.0 and drops hard after,
+ * so the middle of the plateau is the safer pick than its highest sample.
+ */
+const LAST_IN_TIER = Number(process.env.LAST_IN_TIER ?? 2.5);
+
+/**
+ * Minimum RB/WR on the roster by the end of Round 6.
+ *
+ * The blueprint's one hard draft guardrail: reach four or five RB/WR by Round 6,
+ * because strict Zero-RB style builds measured worse across ~15,000 managed
+ * leagues a season. 0 disables it.
+ */
+const R6_FLOOR = Number(process.env.R6_FLOOR ?? 4);
+const R6_BY_ROUND = 6;
+
+/**
  * Positions that are streamed, not drafted.
  *
  * Kicker and defense are startable off waivers all season -- matchup streaming
@@ -182,6 +213,8 @@ export function recommend(
     recentPositions: Position[];
     /** Roster spots you have left. Drives must-fill in the closing rounds. */
     picksRemaining?: number;
+    /** Total draft rounds, so the Round-6 checkpoint can locate itself. */
+    totalRounds?: number;
   }
 ): Recommendation[] {
   const pressure: RunPressure =
@@ -193,6 +226,19 @@ export function recommend(
   const forced =
     opts.picksRemaining != null ? mustFill(opts.myRoster, opts.picksRemaining) : [];
 
+  // Early rounds: keep the RB/WR engine on schedule. Only bites when the picks
+  // left before Round 7 are exactly enough to reach the floor -- it never front-
+  // loads receivers and backs, it just stops you drifting past the checkpoint.
+  let engineOnly = false;
+  if (R6_FLOOR > 0 && opts.totalRounds != null && opts.picksRemaining != null) {
+    const round = opts.totalRounds - opts.picksRemaining + 1;
+    if (round <= R6_BY_ROUND) {
+      const have = (opts.myRoster.RB ?? 0) + (opts.myRoster.WR ?? 0);
+      const picksLeftBeforeCheckpoint = R6_BY_ROUND - round + 1;
+      engineOnly = R6_FLOOR - have >= picksLeftBeforeCheckpoint;
+    }
+  }
+
   // Players at a hard cap are removed outright, not scored zero. Late in a draft
   // the best remaining players have NEGATIVE value over replacement, so a
   // zero-scored sixth defense outranks them and the roster fills with kickers.
@@ -203,6 +249,7 @@ export function recommend(
   const available = players.filter((p) => {
     if (opts.draftedIds.has(p.id)) return false;
     if (forced.includes(p.position)) return true;
+    if (engineOnly && p.position !== "RB" && p.position !== "WR") return false;
     if (tooEarlyForStreamers && STREAM_LATE.has(p.position)) return false;
     // Backups you could never start wait for the endgame, same as kickers.
     if (tooEarlyForStreamers && isPureBackup(p.position, opts.myRoster, opts.slots)) return false;
@@ -217,6 +264,24 @@ export function recommend(
     opts.picksUntilNext != null && byValue.length
       ? Math.max(0, byValue[Math.min(opts.picksUntilNext, byValue.length - 1)]?.vorp ?? 0)
       : 0;
+
+  // How many of each position+tier are still on the board, and how far the drop
+  // is to the next tier down.
+  const tierLeft = new Map<string, number>();
+  for (const p of available) {
+    const k = `${p.position}:${p.tier}`;
+    tierLeft.set(k, (tierLeft.get(k) ?? 0) + 1);
+  }
+  // Best VORP remaining in each position+tier. Keyed by the player's OWN tier so
+  // a lookup at tier+1 returns the tier below him -- keying by tier+1 here made
+  // every lookup return his own tier, so the cliff came out at or below zero and
+  // the bonus silently never applied.
+  const tierBest = new Map<string, number>();
+  for (const p of available) {
+    const k = `${p.position}:${p.tier}`;
+    const cur = tierBest.get(k);
+    if (cur == null || p.vorp > cur) tierBest.set(k, p.vorp);
+  }
 
   const scored = available.map((p) => {
     // ESPN ADP centres the estimate -- this league drafts on ESPN, so it predicts
@@ -236,7 +301,12 @@ export function recommend(
     // bad the player is.
     // Survival does NOT weight the ranking. See SURVIVAL_WEIGHT below.
     const gone = (s ?? 0) * SURVIVAL_WEIGHT;
-    const score = urgency + (value > 0 ? value * (1 - gone) + fallback * gone : value);
+    let score = urgency + (value > 0 ? value * (1 - gone) + fallback * gone : value);
+
+    if (LAST_IN_TIER > 0 && value > 0 && (tierLeft.get(`${p.position}:${p.tier}`) ?? 0) === 1) {
+      const below = tierBest.get(`${p.position}:${p.tier + 1}`);
+      if (below != null) score += Math.max(0, p.vorp - below) * LAST_IN_TIER;
+    }
     return { ...p, survival: s, need, score, reason: "" };
   });
 

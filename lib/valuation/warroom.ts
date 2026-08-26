@@ -53,6 +53,7 @@ export async function getWarRoom(manualDrafted: number[] = []): Promise<WarRoom>
     picksUntilNext: draft.picksUntilMine,
     recentPositions,
     picksRemaining: draft.myPicks.filter((p) => p >= draft.nextOverall).length,
+    totalRounds: board.league.rosterSize,
   });
 
   const onTheClock = draft.nextOverall + manualDrafted.filter((id) => !draft.draftedIds.has(id)).length;

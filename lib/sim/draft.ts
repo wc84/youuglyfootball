@@ -60,6 +60,7 @@ export function simulateDraft(board: Board, mySlot: number, rng: () => number): 
           picksUntilNext: myNext ? myNext - overall : null,
           recentPositions: takenPositions.slice(-8),
           picksRemaining: rounds - round + 1,
+          totalRounds: rounds,
         });
         chosen = ranked[0] ?? null;
       } else {
