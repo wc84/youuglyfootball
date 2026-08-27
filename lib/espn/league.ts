@@ -27,8 +27,8 @@ export interface LeagueSettings {
   scoringItems: { statId: number; points: number }[];
 }
 
-export async function getLeagueSettings(): Promise<LeagueSettings> {
-  const raw = await espnFetch<any>(["mSettings"]);
+export async function getLeagueSettings(leagueId?: string): Promise<LeagueSettings> {
+  const raw = await espnFetch<any>(["mSettings"], undefined, { leagueId });
   const s = raw.settings;
   const counts: Record<string, number> = s.rosterSettings.lineupSlotCounts;
 

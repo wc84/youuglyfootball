@@ -41,8 +41,8 @@ export interface Board {
 
 const ORDER: Position[] = ["RB", "WR", "TE", "QB", "K", "DST"];
 
-export async function buildBoard(): Promise<Board> {
-  const league = await getLeagueSettings();
+export async function buildBoard(leagueId?: string): Promise<Board> {
+  const league = await getLeagueSettings(leagueId);
   const [pool, ffc, sleeper] = await Promise.all([
     getPlayerPool(league.season),
     getFfcAdp(league.size, league.season),

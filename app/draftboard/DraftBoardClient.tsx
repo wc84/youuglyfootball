@@ -5,7 +5,15 @@ import type { LiveBoard, BoardPick } from "@/lib/valuation/draftboard";
 
 const POLL_MS = 3000;
 
-export default function DraftBoardClient({ initial }: { initial: LiveBoard | null }) {
+export default function DraftBoardClient({
+  initial,
+  league,
+  error: fatal,
+}: {
+  initial: LiveBoard | null;
+  league?: string | null;
+  error?: string | null;
+}) {
   const [b, setB] = useState<LiveBoard | null>(initial);
   const [err, setErr] = useState(false);
   const [now, setNow] = useState(0);
@@ -20,7 +28,7 @@ export default function DraftBoardClient({ initial }: { initial: LiveBoard | nul
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch("/api/draftboard", { cache: "no-store" });
+      const res = await fetch(`/api/draftboard${league ? `?league=${league}` : ""}`, { cache: "no-store" });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
       if (madeRef.current !== null && json.made !== madeRef.current) {
@@ -34,7 +42,7 @@ export default function DraftBoardClient({ initial }: { initial: LiveBoard | nul
     } catch {
       setErr(true);
     }
-  }, []);
+  }, [league]);
 
   useEffect(() => {
     const t = setInterval(load, POLL_MS);
@@ -57,7 +65,8 @@ export default function DraftBoardClient({ initial }: { initial: LiveBoard | nul
   if (!b) {
     return (
       <div className="db">
-        <div className="db-boot">Connecting to the draft…</div>
+        <div className="db-aurora" aria-hidden="true" />
+        <div className="db-boot">{fatal ?? "Connecting to the draft…"}</div>
       </div>
     );
   }

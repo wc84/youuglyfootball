@@ -72,11 +72,11 @@ function grade(totals: number[]): { letters: string[]; strengths: number[] } {
   };
 }
 
-export async function getLiveBoard(): Promise<LiveBoard> {
-  const board = await buildBoard();
+export async function getLiveBoard(leagueId?: string): Promise<LiveBoard> {
+  const board = await buildBoard(leagueId);
   const size = board.league.size;
   const rounds = board.league.rosterSize;
-  const draft = await getDraftState(size, rounds);
+  const draft = await getDraftState(size, rounds, leagueId);
   const byId = new Map(board.players.map((p) => [p.id, p]));
 
   // Column order comes from round one, which is authoritative once ESPN has
