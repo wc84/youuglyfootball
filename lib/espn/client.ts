@@ -62,9 +62,20 @@ export async function espnFetch<T>(
   );
 
   if (res.status === 401) {
+    // Do not assume expiry. A 401 also means "this account was not in that league
+    // that season", which is what reading a historical season returns, and the
+    // canned cookie advice sends you to re-copy credentials that are fine.
+    let detail = "";
+    try {
+      const body = JSON.parse(await res.text());
+      if (Array.isArray(body?.messages) && body.messages.length) detail = ` ESPN says: ${body.messages.join("; ")}`;
+    } catch {
+      // no JSON body; fall through to the generic advice
+    }
     throw new Error(
-      "ESPN returned 401. Your espn_s2 / SWID cookies have expired -- re-copy them " +
-        "from DevTools (Application > Cookies > fantasy.espn.com) into .env.local."
+      `ESPN returned 401 for league ${leagueId}, season ${season}.${detail} ` +
+        "If the cookies are stale, re-copy espn_s2 and SWID from DevTools " +
+        "(Application > Cookies > fantasy.espn.com) into .env.local."
     );
   }
   if (!res.ok) {
