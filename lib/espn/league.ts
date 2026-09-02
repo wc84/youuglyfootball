@@ -24,7 +24,13 @@ export interface LeagueSettings {
   regularSeasonMatchups: number;
   lineupLockType: string;
   /** Raw scoring rules, so external projections can be scored under them. */
-  scoringItems: { statId: number; points: number }[];
+  scoringItems: {
+    statId: number;
+    points: number;
+    /** Per-position values. Defensive rules carry these; offensive rules do not,
+     *  which is how a scorer tells the two apart. */
+    pointsOverrides?: Record<string, number>;
+  }[];
 }
 
 export async function getLeagueSettings(leagueId?: string): Promise<LeagueSettings> {
@@ -70,6 +76,12 @@ export async function getLeagueSettings(leagueId?: string): Promise<LeagueSettin
     playoffTeams: s.scheduleSettings.playoffTeamCount,
     regularSeasonMatchups: s.scheduleSettings.matchupPeriodCount,
     lineupLockType: s.rosterSettings.lineupLocktimeType,
-    scoringItems: (s.scoringSettings.scoringItems ?? []).map((i: any) => ({ statId: i.statId, points: i.points })),
+    scoringItems: (s.scoringSettings.scoringItems ?? []).map((i: any) => ({
+      statId: i.statId,
+      points: i.points,
+      // Kept: without it every defensive rule looks like an offensive one the
+      // scoring engine has failed to implement.
+      ...(i.pointsOverrides ? { pointsOverrides: i.pointsOverrides } : {}),
+    })),
   };
 }

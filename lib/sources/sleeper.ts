@@ -1,5 +1,5 @@
 import { playerKey } from "./names";
-import { makeScorer, type StatLine, type ScoringRule } from "../scoring/engine";
+import { makeScorer, assertScorable, type StatLine, type ScoringRule } from "../scoring/engine";
 
 export interface SleeperProjection {
   points: number;      // scored under THIS league's rules
@@ -28,6 +28,8 @@ export async function getSleeperProjections(
   season: number,
   scoringItems: ScoringRule[]
 ): Promise<Map<string, SleeperProjection>> {
+  // Fail loudly rather than blend a projection scored on a partial rulebook.
+  assertScorable(scoringItems);
   const score = makeScorer(scoringItems);
   const out = new Map<string, SleeperProjection>();
   const url =
