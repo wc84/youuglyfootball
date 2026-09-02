@@ -1,3 +1,20 @@
+/**
+ * What this simulator can and cannot measure.
+ *
+ * CAN: draft-strategy parameters -- last-in-tier weight and cap, the Round-6
+ * floor, position caps, streaming gates. These change how we pick while the
+ * definition of a good roster stays fixed, so the comparison is honest.
+ *
+ * CANNOT: the projection itself, including BLEND_WEIGHT. rosterStrength scores
+ * a simulated roster from p.projected, which IS the projection under test. The
+ * assumed truth and the yardstick are the same number, so every setting looks
+ * self-consistent and the sweep measures how exploitable ADP-following
+ * opponents are under that assumption -- not which projection is correct.
+ *
+ * A BLEND_WEIGHT sweep here produced a clean-looking 36.8% at 0 against 35.0%
+ * at 0.3. It is not evidence. Projection accuracy is settled out of sample,
+ * against a finished season, by scripts/source-accuracy.ts.
+ */
 import { buildBoard } from "../lib/valuation/board";
 import { espnFetch } from "../lib/espn/client";
 import { simulateDraft } from "../lib/sim/draft";
