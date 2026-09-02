@@ -82,6 +82,37 @@ const SURVIVAL_WEIGHT = 0;
 const LAST_IN_TIER = Number(process.env.LAST_IN_TIER ?? 2.5);
 
 /**
+ * Ceiling on the last-in-tier bonus, as a multiple of the player's own VORP.
+ *
+ * The bonus is a cliff times a weight, and neither term is bounded by what the
+ * player is actually worth. When one player separates from his position the
+ * bonus can exceed his entire value and stop being a tiebreaker: Josh Allen,
+ * alone in QB tier 1 and 44 points clear of the next, scored 70.5 + 111.0 and
+ * went first overall ahead of a 136-VORP running back -- for a quarterback whose
+ * 10-team PPR ADP is 33, who would still have been there two rounds later.
+ *
+ * At 1.0 a cliff can at most double a score: enough to lift a player past
+ * comparable options, never enough to invert a gap of that size.
+ *
+ * Measured at 40x400 per slot, all ten slots, against weight 2.5:
+ *
+ *   cap 0.5   34.80%      cap 1.0        35.85%
+ *   cap 0.75  35.15%      cap Infinity   35.60%
+ *
+ * Then 60x600 (360k seasons) for the two that mattered:
+ *
+ *   no cap    35.74% overall, QB first in 9 of 10 slots, slot 1 at 38.9%
+ *   cap 1.0   35.91% overall, QB first in 0 of 10 slots, slot 1 at 41.0%
+ *
+ * The overall gap is noise. The slot-1 gap is not the same claim: slot 1 holds
+ * the first overall pick, which is where spending it on a player who lasts to 33
+ * costs the most, and it is where the mechanism predicts the gain would land.
+ * Tighter caps cost a full point, so the bound wants to be loose -- it only has
+ * to exist.
+ */
+const LAST_IN_TIER_CAP = Number(process.env.LAST_IN_TIER_CAP ?? 1.0);
+
+/**
  * Minimum RB/WR on the roster by the end of Round 6.
  *
  * The blueprint's one hard draft guardrail: reach four or five RB/WR by Round 6,
@@ -305,7 +336,12 @@ export function recommend(
 
     if (LAST_IN_TIER > 0 && value > 0 && (tierLeft.get(`${p.position}:${p.tier}`) ?? 0) === 1) {
       const below = tierBest.get(`${p.position}:${p.tier + 1}`);
-      if (below != null) score += Math.max(0, p.vorp - below) * LAST_IN_TIER;
+      if (below != null) {
+        const cliff = Math.max(0, p.vorp - below) * LAST_IN_TIER;
+        score += Number.isFinite(LAST_IN_TIER_CAP)
+          ? Math.min(cliff, p.vorp * LAST_IN_TIER_CAP)
+          : cliff;
+      }
     }
     return { ...p, survival: s, need, score, reason: "" };
   });
