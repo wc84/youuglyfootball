@@ -71,7 +71,25 @@ export async function buildBoard(leagueId?: string): Promise<Board> {
   // (Sleeper) points per player. Read any projection as a ceiling. It does not
   // distort VORP, which is relative, or win probability, where both lineups inflate
   // together -- but it is why raw projected totals should never be taken at face value.
-  const blend = Number(process.env.BLEND_WEIGHT ?? 0.3);
+  // 0.5, on two measurements that agree and were taken independently.
+  //
+  // The previous 0.3 has no surviving justification: it was fitted while the
+  // scoring engine was dropping every yardage rule, so the Sleeper side of that
+  // comparison was scored on touchdowns and receptions alone.
+  //
+  // Re-measured against 2025 results with that fixed, within-position rank
+  // correlation -- the thing VORP actually needs, since it compares a player to
+  // replacement at HIS position -- peaks at a half-and-half blend: RB .714
+  // against .700 ESPN and .684 Sleeper, WR .605, TE .647. Independently, the
+  // out-of-sample draft backtest agrees, over 800 drafts each:
+  //
+  //   blend 0.0   2134.6 starter points, average finish 1.75 of 10
+  //   blend 0.3   2182.6                                  1.53
+  //   blend 0.5   2200.8                                  1.45
+  //
+  // Still one season. Overall rank correlation prefers 0.25 rather than 0.5, so
+  // the two objectives disagree and this follows the within-position one.
+  const blend = Number(process.env.BLEND_WEIGHT ?? 0.5);
   let blended = 0;
   const projected = pool.map((p) => {
     if (blend <= 0 || p.projected == null) return p;

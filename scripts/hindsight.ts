@@ -23,6 +23,7 @@ import { assignTiers } from "../lib/valuation/tiers";
 import { recommend } from "../lib/valuation/recommend";
 import { opponentPick, forcedNeed, type RosterCount } from "../lib/sim/opponents";
 import { getFfcAdp } from "../lib/sources/ffc";
+import { getSleeperProjections } from "../lib/sources/sleeper";
 import { playerKey } from "../lib/sources/names";
 import { makeRng } from "../lib/sim/rng";
 import type { BoardPlayer } from "../lib/valuation/board";
@@ -214,6 +215,22 @@ async function main() {
   // near-randomly and the market baseline stops being a market. Real 2025
   // preseason ADP comes from FantasyFootballCalculator at this league's size and
   // scoring.
+  // Blend the second opinion exactly as the live board does, so BLEND_WEIGHT is
+  // answerable here. It is not answerable in the season simulator, where the
+  // blended projection is also the yardstick and every weight scores itself.
+  const blend = Number(process.env.BLEND_WEIGHT ?? 0.3);
+  if (blend > 0) {
+    const alt = await getSleeperProjections(SEASON, league.scoringItems);
+    let n = 0;
+    for (const p of pool as any[]) {
+      const s = alt.get(playerKey(p.name, p.position));
+      if (!s) continue;
+      p.projected = p.projected * (1 - blend) + s.points * blend;
+      n++;
+    }
+    console.log(`Sleeper ${SEASON} blended at ${blend} into ${n} of ${pool.length} projections`);
+  }
+
   const adp2025 = await getFfcAdp(league.size, SEASON);
   let matched = 0;
   for (const p of pool as any[]) {

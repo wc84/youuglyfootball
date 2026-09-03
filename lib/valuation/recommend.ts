@@ -79,7 +79,29 @@ const SURVIVAL_WEIGHT = 0;
  * the apparent 3.0 peak: the curve is flat from 2.0 to 3.0 and drops hard after,
  * so the middle of the plateau is the safer pick than its highest sample.
  */
-const LAST_IN_TIER = Number(process.env.LAST_IN_TIER ?? 2.5);
+/**
+ * OFF. Measured harmful against real results.
+ *
+ * This was tuned to 2.5 against the season simulator's championship rate, where
+ * it looked worth about three points. That metric scores rosters with the same
+ * projections the engine drafted on, so it cannot distinguish a better draft
+ * from a more self-consistent one.
+ *
+ * Graded on what actually happened in 2025, the bonus costs points, and the
+ * damage scales with the dose -- 800 drafts per setting, identical boards,
+ * opponents and seeds:
+ *
+ *   no bonus          2182.6 starter points, average finish 1.53 of 10
+ *   bonus, capped     2156.0                                  1.65
+ *   bonus, uncapped   2126.3                                  1.76
+ *
+ * Monotone in the wrong direction. The cap added earlier only helped by
+ * shrinking a term that should not have been there; zero was always the answer.
+ *
+ * Kept rather than deleted so a second completed season can retest it -- every
+ * number above comes from 2025 alone, since this league returns 401 for 2024.
+ */
+const LAST_IN_TIER = Number(process.env.LAST_IN_TIER ?? 0);
 
 /**
  * Ceiling on the last-in-tier bonus, as a multiple of the player's own VORP.
@@ -119,6 +141,34 @@ const LAST_IN_TIER_CAP = Number(process.env.LAST_IN_TIER_CAP ?? 1.0);
  * because strict Zero-RB style builds measured worse across ~15,000 managed
  * leagues a season. 0 disables it.
  */
+/**
+ * Per-position shrinkage of VORP, reflecting how much a projection at that
+ * position is actually worth.
+ *
+ * VORP treats a quarterback projected 70 above his baseline as equal to a
+ * running back projected 70 above his. Measured against 2025 results they are
+ * not close. Fitting actual = a + b * projected per position gives a slope of
+ * 0.563 for QB against 0.866 for RB, so most of a quarterback's projected edge
+ * evaporates while a back keeps his. Within-position rank correlation says the
+ * same thing from a different direction: QB 0.39-0.46 against RB 0.70, WR 0.60,
+ * TE 0.63. Quarterbacks are simply the hardest position to forecast.
+ *
+ * Deliberately OFF. Both measurements come from 2025, the only completed season
+ * this league can read -- 2024 returns "not authorized" -- so any coefficient
+ * fitted here can only be tested on the season it was fitted to, which proves
+ * nothing. Shipping a number in that state is the same circular reasoning that
+ * produced a QB going first overall.
+ *
+ * Set RELIABILITY_SHRINK=1 to enable the measured slopes, or supply your own
+ * once a second season exists to validate against. The K slope fits at 3.6,
+ * which is noise from a position whose projections barely vary, and is a fair
+ * warning about the whole method.
+ */
+const SHRINK_ON = process.env.RELIABILITY_SHRINK === "1";
+const SHRINK: Record<string, number> = {
+  QB: 0.563, RB: 0.866, WR: 0.664, TE: 0.721, K: 1, DST: 0.772,
+};
+
 const R6_FLOOR = Number(process.env.R6_FLOOR ?? 4);
 const R6_BY_ROUND = 6;
 
@@ -324,7 +374,11 @@ export function recommend(
     const need = rosterNeed(p.position, opts.myRoster, opts.slots);
     const reliability = RELIABILITY[p.position] ?? 1;
     const urgency = forced.length && forced.includes(p.position) ? 1000 : 0;
-    const value = p.vorp * reliability * need;
+    // Shrink only the positive edge: below replacement there is no edge to
+    // discount, and scaling a negative would make an unreliable position look
+    // better the worse the player is.
+    const shrink = SHRINK_ON && p.vorp > 0 ? (SHRINK[p.position] ?? 1) : 1;
+    const value = p.vorp * shrink * reliability * need;
     // The survival discount is opportunity cost, which only makes sense on value
     // you actually want. Applied to a NEGATIVE vorp it flips: multiplying by a
     // smaller factor makes a below-replacement player look *better* the more
