@@ -1,0 +1,144 @@
+
+======================================================================
+  ESPN DRAFT QUEUE -- load this before the draft starts
+======================================================================
+
+  What this is for: if your clock runs out, ESPN drafts the top
+  player still available from YOUR queue. In this order that is
+  the engine's pick, not ESPN's default best-available.
+
+  How: ESPN draft room > Queue tab > add these in order, top first.
+  Do it before 7:00 PM. ESPN skips anyone already drafted, so one
+  pass now covers the whole night.
+
+  Kickers and defences are deliberately excluded -- a queue is a
+  dumb list and would otherwise hand you one in round 2. Add a K and
+  a D/ST by hand once you reach round 14.
+
+----------------------------------------------------------------------
+
+   1. RB  Jahmyr Gibbs                350 proj   vorp  159.8
+   2. RB  Bijan Robinson              339 proj   vorp  148.2
+   3. WR  Puka Nacua                  333 proj   vorp  135.0
+   4. WR  Ja'Marr Chase               324 proj   vorp  126.0
+   5. RB  Christian McCaffrey         316 proj   vorp  125.8
+   6. WR  Jaxon Smith-Njigba          306 proj   vorp  107.6
+   7. WR  Amon-Ra St. Brown           302 proj   vorp  104.2
+   8. RB  Jonathan Taylor             294 proj   vorp  103.7
+   9. RB  De'Von Achane               275 proj   vorp   84.9
+  10. WR  CeeDee Lamb                 282 proj   vorp   84.0
+  11. TE  Brock Bowers                247 proj   vorp   81.4
+  12. RB  James Cook III              270 proj   vorp   80.0
+  13. WR  Justin Jefferson            272 proj   vorp   74.1
+  14. RB  Chase Brown                 263 proj   vorp   73.0
+  15. TE  Trey McBride                238 proj   vorp   72.5
+  16. QB  Josh Allen                  361 proj   vorp   72.3
+  17. RB  Derrick Henry               262 proj   vorp   71.9
+  18. RB  Saquon Barkley              260 proj   vorp   69.6
+  19. RB  Kenneth Walker III          259 proj   vorp   68.1
+  20. RB  Ashton Jeanty               256 proj   vorp   66.0
+  21. RB  Omarion Hampton             252 proj   vorp   61.9
+  22. WR  Drake London                260 proj   vorp   61.8
+  23. WR  Nico Collins                255 proj   vorp   57.1
+  24. RB  Jeremiyah Love              244 proj   vorp   53.8
+  25. RB  Breece Hall                 243 proj   vorp   52.2
+  26. WR  A.J. Brown                  248 proj   vorp   50.3
+  27. WR  Rashee Rice                 244 proj   vorp   46.2
+  28. RB  Javonte Williams            236 proj   vorp   45.3
+  29. TE  Colston Loveland            211 proj   vorp   45.2
+  30. WR  Chris Olave                 243 proj   vorp   44.7
+  31. WR  George Pickens              242 proj   vorp   44.4
+  32. WR  Malik Nabers                240 proj   vorp   42.3
+  33. TE  Tyler Warren                206 proj   vorp   40.0
+  34. WR  Garrett Wilson              237 proj   vorp   39.4
+  35. RB  Travis Etienne Jr.          227 proj   vorp   36.6
+  36. WR  DeVonta Smith               234 proj   vorp   36.1
+  37. WR  Zay Flowers                 233 proj   vorp   35.3
+  38. QB  Lamar Jackson               320 proj   vorp   31.8
+  39. WR  Tetairoa McMillan           229 proj   vorp   31.4
+  40. RB  Kyren Williams              220 proj   vorp   29.6
+  41. WR  Emeka Egbuka                226 proj   vorp   28.3
+  42. TE  Sam LaPorta                 193 proj   vorp   26.8
+  43. WR  Ladd McConkey               225 proj   vorp   26.6
+  44. QB  Drake Maye                  315 proj   vorp   26.3
+  45. RB  Cam Skattebo                214 proj   vorp   23.9
+  46. WR  Tee Higgins                 222 proj   vorp   23.6
+  47. QB  Jalen Hurts                 311 proj   vorp   22.7
+  48. RB  Quinshon Judkins            211 proj   vorp   21.0
+  49. QB  Jayden Daniels              308 proj   vorp   19.9
+  50. WR  Jaylen Waddle               217 proj   vorp   19.0
+  51. TE  Harold Fannin Jr.           185 proj   vorp   18.9
+  52. RB  D'Andre Swift               209 proj   vorp   18.6
+  53. WR  Terry McLaurin              216 proj   vorp   17.9
+  54. TE  George Kittle               181 proj   vorp   15.5
+  55. WR  Davante Adams               212 proj   vorp   14.3
+  56. WR  Rome Odunze                 211 proj   vorp   12.5
+  57. TE  Kyle Pitts Sr.              178 proj   vorp   12.5
+  58. RB  David Montgomery            203 proj   vorp   12.5
+  59. QB  Joe Burrow                  300 proj   vorp   11.7
+  60. RB  Bucky Irving                202 proj   vorp   11.7
+
+----------------------------------------------------------------------
+  Plain list, easier to copy:
+
+  1. Jahmyr Gibbs
+  2. Bijan Robinson
+  3. Puka Nacua
+  4. Ja'Marr Chase
+  5. Christian McCaffrey
+  6. Jaxon Smith-Njigba
+  7. Amon-Ra St. Brown
+  8. Jonathan Taylor
+  9. De'Von Achane
+  10. CeeDee Lamb
+  11. Brock Bowers
+  12. James Cook III
+  13. Justin Jefferson
+  14. Chase Brown
+  15. Trey McBride
+  16. Josh Allen
+  17. Derrick Henry
+  18. Saquon Barkley
+  19. Kenneth Walker III
+  20. Ashton Jeanty
+  21. Omarion Hampton
+  22. Drake London
+  23. Nico Collins
+  24. Jeremiyah Love
+  25. Breece Hall
+  26. A.J. Brown
+  27. Rashee Rice
+  28. Javonte Williams
+  29. Colston Loveland
+  30. Chris Olave
+  31. George Pickens
+  32. Malik Nabers
+  33. Tyler Warren
+  34. Garrett Wilson
+  35. Travis Etienne Jr.
+  36. DeVonta Smith
+  37. Zay Flowers
+  38. Lamar Jackson
+  39. Tetairoa McMillan
+  40. Kyren Williams
+  41. Emeka Egbuka
+  42. Sam LaPorta
+  43. Ladd McConkey
+  44. Drake Maye
+  45. Cam Skattebo
+  46. Tee Higgins
+  47. Jalen Hurts
+  48. Quinshon Judkins
+  49. Jayden Daniels
+  50. Jaylen Waddle
+  51. Harold Fannin Jr.
+  52. D'Andre Swift
+  53. Terry McLaurin
+  54. George Kittle
+  55. Davante Adams
+  56. Rome Odunze
+  57. Kyle Pitts Sr.
+  58. David Montgomery
+  59. Joe Burrow
+  60. Bucky Irving
+

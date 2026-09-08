@@ -21,6 +21,18 @@ const POLL_FAR_MS = 4000;
 const POLL_NEAR_MS = 1500;
 /** Picks away from your turn at which the board starts watching closely. */
 const NEAR_PICKS = 2;
+/**
+ * Alerting only -- never used to take an action.
+ *
+ * ESPN publishes no pick deadline; the only deadline in its entire payload is
+ * the trade deadline. So this clock is inferred from when the pick count last
+ * moved, which makes it accurate to roughly the poll interval and no better.
+ * That is fine for "look up now" and completely unfit for firing an
+ * irreversible pick, which is why nothing here does that.
+ */
+const WARN_AT_S = 15;
+const ALARM_AT_S = 7;
+
 const STALE_MS = 90_000; // no new pick this long during a live draft = tracking may be stuck
 
 export default function DraftClient() {
@@ -87,6 +99,16 @@ export default function DraftClient() {
   const trackingStale =
     wr.inProgress && !wr.complete && lastPickAt != null && now - lastPickAt > STALE_MS;
 
+  // Seconds left on OUR pick, inferred. Null unless it is our turn and we have
+  // actually seen the previous pick land -- guessing from a page load would
+  // start a countdown that never had a starting gun.
+  const secsLeft =
+    wr.isMyPick && !wr.complete && lastPickAt != null
+      ? Math.max(0, wr.league.pickClockSeconds - (now - lastPickAt) / 1000)
+      : null;
+  const urgency =
+    secsLeft == null ? "" : secsLeft <= ALARM_AT_S ? " alarm" : secsLeft <= WARN_AT_S ? " warn" : "";
+
   const rows = q.trim()
     ? wr.available.filter((p) => p.name.toLowerCase().includes(q.trim().toLowerCase()))
     : wr.available.slice(0, 60);
@@ -130,6 +152,18 @@ export default function DraftClient() {
               })}
             </div>
           </div>
+
+          {secsLeft != null && (
+            <div className={`dtile t-clock${urgency}`}>
+              <i>Your pick</i>
+              <b>{Math.floor(secsLeft)}s</b>
+              <em>
+                {secsLeft <= ALARM_AT_S
+                  ? "PICK NOW — inferred, may run fast"
+                  : "approximate, ESPN publishes no clock"}
+              </em>
+            </div>
+          )}
 
           <div className={`dtile t-track${trackingStale ? " stale" : ""}`}>
             <i>Auto-tracking</i>

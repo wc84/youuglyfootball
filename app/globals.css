@@ -726,3 +726,21 @@ th.n .sortbtn{flex-direction:row-reverse}
   display:block;font-family:var(--f-mono);font-size:.62rem;color:var(--muted);
   font-variant-numeric:tabular-nums;margin-top:.05rem;cursor:help;
 }
+
+/* Inferred pick clock. Alerting only -- ESPN publishes no deadline, so this is
+   derived from when the pick count last moved and is accurate to about the poll
+   interval. Styled to escalate so it is readable from across a room, and worded
+   so it never claims more precision than it has. */
+.t-clock b{color:var(--pos);font-variant-numeric:tabular-nums}
+.t-clock.warn{border-color:var(--qb-bd);background:linear-gradient(180deg,#fff,var(--qb-bg))}
+.t-clock.warn b{color:#B45309}
+.t-clock.alarm{border-color:var(--neg);background:linear-gradient(180deg,#fff,#FEF2F2)}
+.t-clock.alarm b{color:var(--neg)}
+.t-clock.alarm{animation:clockPulse 1s ease-in-out infinite}
+@keyframes clockPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0)}
+  50%{box-shadow:0 0 0 6px rgba(220,38,38,.18)}
+}
+@media (prefers-reduced-motion:reduce){
+  .t-clock.alarm{animation:none;border-width:2px}
+}
