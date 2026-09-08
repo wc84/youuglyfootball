@@ -412,20 +412,25 @@ export function recommend(
 function explain(r: Recommendation, all: Recommendation[], pressure: RunPressure): string {
   const bits: string[] = [];
 
-  const tierMates = all.filter((x) => x.position === r.position && x.tier === r.tier).length;
-  if (tierMates === 1) bits.push(`last ${r.position} in tier ${r.tier}`);
-  else bits.push(`${tierMates} left in ${r.position} tier ${r.tier}`);
+  // Lead with what actually produced the ranking: value over replacement,
+  // scaled by what the roster still needs. Everything after it is context for a
+  // human deciding whether to override, and must not read as the reason -- the
+  // tier cliff and the survival estimate in particular carry zero ranking
+  // weight (LAST_IN_TIER and SURVIVAL_WEIGHT are both 0), and a line that
+  // implies otherwise is telling you a story about a pick it did not make.
+  bits.push(`${r.vorp.toFixed(0)} over replacement`);
 
   const nextAtPos = all.find((x) => x.position === r.position && x.rank > r.rank);
   if (nextAtPos) {
     const cliff = r.vorp - nextAtPos.vorp;
-    if (cliff >= 15) bits.push(`${cliff.toFixed(0)}-point cliff behind him`);
+    if (cliff >= 15) bits.push(`next ${r.position} is ${cliff.toFixed(0)} worse`);
   }
 
-  // Context for you, not justification for the ranking -- the board is ranked on
-  // value alone. If you want to take someone else, this tells you what it costs.
+  const tierMates = all.filter((x) => x.position === r.position && x.tier === r.tier).length;
+  if (tierMates === 1) bits.push(`last ${r.position} in tier ${r.tier}`);
+
   if (r.survival != null) {
-    if (r.survival <= 0.15) bits.push("won't last to your next pick");
+    if (r.survival <= 0.15) bits.push("unlikely to last to your next pick");
     else if (r.survival >= 0.6) bits.push(`${(r.survival * 100).toFixed(0)}% he lasts if you'd rather take someone else`);
   }
 
