@@ -72,11 +72,25 @@ export default function DraftBoardClient({
   }
 
   const limit = b.clockSeconds;
-  const elapsed = now ? (now - startedRef.current) / 1000 : 0;
+
+  // Pick 1 is timed from the published draft start; every later pick is timed
+  // from the moment we saw the pick count change. ESPN gives us exactly one real
+  // timestamp and it belongs to the pick that has no predecessor to measure from.
+  const preDraft = now > 0 && now < b.startsAt;
+  const origin = b.started ? startedRef.current : b.startsAt;
+  const elapsed = now ? (now - origin) / 1000 : 0;
   const left = Math.max(0, limit - elapsed);
   const frac = Math.max(0, Math.min(1, left / limit));
-  const ticking = b.started && !b.complete && !!b.onClock;
+  const ticking = !b.complete && !!b.onClock && !preDraft && (b.started || b.live);
   const urgent = ticking && left <= 10;
+
+  // Countdown to the start, so the board is doing something useful beforehand.
+  const untilStart = preDraft ? Math.max(0, Math.round((b.startsAt - now) / 1000)) : 0;
+  const hh = Math.floor(untilStart / 3600);
+  const mm = Math.floor((untilStart % 3600) / 60);
+  const ss = untilStart % 60;
+  const startIn = hh > 0 ? `${hh}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`
+                         : `${mm}:${String(ss).padStart(2, "0")}`;
 
   const R = 78;
   const C = 2 * Math.PI * R;
@@ -127,7 +141,7 @@ export default function DraftBoardClient({
             </defs>
             <circle cx="100" cy="100" r={R} className="db-ring-track" />
             <circle cx="100" cy="100" r={R} className="db-ring-fill"
-              strokeDasharray={C} strokeDashoffset={C * (1 - (b.started && !b.complete ? frac : 1))}
+              strokeDasharray={C} strokeDashoffset={C * (1 - (ticking ? frac : 1))}
               filter="url(#ringGlow)" transform="rotate(-90 100 100)" />
           </svg>
           <div className="db-clock-face">
@@ -143,8 +157,8 @@ export default function DraftBoardClient({
               </>
             ) : (
               <>
-                <span className="db-clock-t">--</span>
-                <span className="db-clock-l">{b.live ? "waiting for pick 1" : "not started"}</span>
+                <span className="db-clock-t">{preDraft ? startIn : "--"}</span>
+                <span className="db-clock-l">{preDraft ? "until first pick" : "waiting"}</span>
               </>
             )}
           </div>

@@ -37,6 +37,12 @@ export interface LiveBoard {
   started: boolean;
   /** The draft room is open. Not the same as picks having begun. */
   live: boolean;
+  /**
+   * Draft start, epoch ms. This is the one real timestamp ESPN gives us, and it
+   * is the starting gun for pick 1 -- the only pick whose clock cannot be timed
+   * from a previous pick landing, because there is no previous pick.
+   */
+  startsAt: number;
   generatedAt: string;
 }
 
@@ -151,6 +157,7 @@ export async function getLiveBoard(leagueId?: string): Promise<LiveBoard> {
     // which restarts on every refresh and counts down against nothing.
     started: made > 0,
     live: !!draft.inProgress,
+    startsAt: board.league.draftDate.getTime(),
     generatedAt: new Date().toISOString(),
   };
 }
