@@ -4,7 +4,23 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { WarRoom } from "@/lib/valuation/warroom";
 import { injuryCode } from "@/lib/injury";
 
-const POLL_MS = 4000;
+/**
+ * Poll cadence. Opponent picks arrive from ESPN automatically -- you never type
+ * them -- so the only question is how stale the board can be when it matters.
+ *
+ * It only matters for the pick immediately before yours. Eight picks earlier a
+ * four-second lag costs nothing; one pick earlier it eats your clock. So the
+ * board closes the gap when your turn is near and stays relaxed otherwise,
+ * rather than hammering ESPN for two straight hours to solve a problem that
+ * exists for about twenty seconds per round.
+ *
+ * Not faster than 1.5s: the endpoint answers in roughly 0.7-1.1s and overlapping
+ * requests would queue rather than arrive sooner.
+ */
+const POLL_FAR_MS = 4000;
+const POLL_NEAR_MS = 1500;
+/** Picks away from your turn at which the board starts watching closely. */
+const NEAR_PICKS = 2;
 const STALE_MS = 90_000; // no new pick this long during a live draft = tracking may be stuck
 
 export default function DraftClient() {
@@ -44,11 +60,17 @@ export default function DraftClient() {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
+  // Discrete so the interval is only torn down when the cadence actually
+  // changes, not on every poll.
+  const near =
+    wr != null &&
+    !wr.complete &&
+    (wr.isMyPick || (wr.picksUntilMine != null && wr.picksUntilMine <= NEAR_PICKS));
   useEffect(() => {
     if (!live) return;
-    const t = setInterval(load, POLL_MS);
+    const t = setInterval(load, near ? POLL_NEAR_MS : POLL_FAR_MS);
     return () => clearInterval(t);
-  }, [live, load]);
+  }, [live, load, near]);
 
   const markDrafted = (id: number) => {
     setManual((m) => (m.includes(id) ? m : [...m, id]));
