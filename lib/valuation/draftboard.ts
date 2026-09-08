@@ -33,7 +33,10 @@ export interface LiveBoard {
   made: number;
   total: number;
   complete: boolean;
+  /** A pick has landed, so the derived clock has a real starting gun. */
   started: boolean;
+  /** The draft room is open. Not the same as picks having begun. */
+  live: boolean;
   generatedAt: string;
 }
 
@@ -141,7 +144,13 @@ export async function getLiveBoard(leagueId?: string): Promise<LiveBoard> {
     made,
     total: picks.length,
     complete: draft.complete,
-    started: made > 0 || draft.inProgress,
+    // Only once a pick has actually landed. ESPN publishes no pick deadline, so
+    // the countdown is timed from the moment the pick count changes -- with zero
+    // picks there is no such moment, and inProgress goes true when the room
+    // OPENS, an hour early. Trusting it there starts a clock from page load,
+    // which restarts on every refresh and counts down against nothing.
+    started: made > 0,
+    live: !!draft.inProgress,
     generatedAt: new Date().toISOString(),
   };
 }

@@ -144,7 +144,7 @@ export default function DraftBoardClient({
             ) : (
               <>
                 <span className="db-clock-t">--</span>
-                <span className="db-clock-l">{b.started ? "standby" : "not started"}</span>
+                <span className="db-clock-l">{b.live ? "waiting for pick 1" : "not started"}</span>
               </>
             )}
           </div>
