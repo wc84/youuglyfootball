@@ -1,0 +1,383 @@
+==============================================================================
+  YOU UGLY  --  DRAFT CHEAT SHEET
+  10 teams | 16 rounds | full PPR | draft 7:00 PM ET Sep 8
+  built 9/8/2026, 9:51:34 AM ET
+==============================================================================
+
+  HOW TO USE: cross off every player as he is taken. At your pick,
+  take the highest name still uncrossed, subject to the rules below.
+
+  RULES THE ENGINE FOLLOWS (measured, not opinion):
+    * No kicker or defence before round 11. They are streamable all
+      season; spending an earlier pick costs more than it returns.
+    * Reach 4-5 RB/WR by the end of round 6.
+    * At most 2 QB and 2 TE, and the backups only in the last 4 rounds.
+    * Otherwise take the highest player left. Do not reach for need.
+
+==============================================================================
+  OVERALL BOARD -- top 140 by value over replacement
+==============================================================================
+
+     #  POS  PLAYER                     PROJ    VORP  TIER   ADP
+   ------------------------------------------------------------------------
+     1  RB   Jahmyr Gibbs               350   159.8    1     1
+     2  RB   Bijan Robinson             339   148.2    2     2
+     3  WR   Puka Nacua                 333   135.0    1     3
+     4  WR   Ja'Marr Chase              324   126.0    2     4
+     5  RB   Christian McCaffrey        316   125.8    3     6
+     6  WR   Jaxon Smith-Njigba         306   107.6    3     6
+     7  WR   Amon-Ra St. Brown          302   104.2    3     7
+     8  RB   Jonathan Taylor            294   103.7    4     7
+     9  RB   De'Von Achane              275    84.9    5    10
+    10  WR   CeeDee Lamb                282    84.0    4    11
+   ------------------------------------------------------------------------
+    11  TE   Brock Bowers               247    81.4    1    35
+    12  RB   James Cook III             270    80.0    5    11
+    13  WR   Justin Jefferson           272    74.1    5    12
+    14  RB   Chase Brown                263    73.0    5    13
+    15  TE   Trey McBride               238    72.5    2    31
+    16  QB   Josh Allen                 361    72.3    1    32
+    17  RB   Derrick Henry              262    71.9    5    16
+    18  RB   Saquon Barkley             260    69.6    5    18
+    19  RB   Kenneth Walker III         259    68.1    5    21
+    20  RB   Ashton Jeanty              256    66.0    5    21
+   ------------------------------------------------------------------------
+    21  RB   Omarion Hampton            252    61.9    5    22
+    22  WR   Drake London               260    61.8    6    14
+    23  WR   Nico Collins               255    57.1    6    20
+    24  RB   Jeremiyah Love             244    53.8    5    28
+    25  RB   Breece Hall                243    52.2    5    31
+    26  WR   A.J. Brown                 248    50.3    7    17
+    27  WR   Rashee Rice                244    46.2    7    17
+    28  RB   Javonte Williams           236    45.3    5    32
+    29  TE   Colston Loveland           211    45.2    3    54
+    30  WR   Chris Olave                243    44.7    7    20
+   ------------------------------------------------------------------------
+    31  WR   George Pickens             242    44.4    7    20
+    32  WR   Malik Nabers               240    42.3    7    27
+    33  TE   Tyler Warren               206    40.0    3    66
+    34  WR   Garrett Wilson             237    39.4    7    27
+    35  RB   Travis Etienne Jr.         227    36.6    6    36
+    36  WR   DeVonta Smith              234    36.1    7    29
+    37  WR   Zay Flowers                233    35.3    7    25
+    38  QB   Lamar Jackson              320    31.8    2    55
+    39  WR   Tetairoa McMillan          229    31.4    7    32
+    40  RB   Kyren Williams             220    29.6    6    32
+   ------------------------------------------------------------------------
+    41  K    Brandon Aubrey             179    28.6    1   126
+    42  WR   Emeka Egbuka               226    28.3    7    36
+    43  TE   Sam LaPorta                193    26.8    4   102
+    44  WR   Ladd McConkey              225    26.6    7    39
+    45  QB   Drake Maye                 315    26.3    2    51
+    46  RB   Cam Skattebo               214    23.9    6    38
+    47  WR   Tee Higgins                222    23.6    7    37
+    48  QB   Jalen Hurts                311    22.7    2    76
+    49  RB   Quinshon Judkins           211    21.0    6    49
+    50  DST  Texans D/ST                136    20.9    1    97
+   ------------------------------------------------------------------------
+    51  DST  Broncos D/ST               136    20.4    1    87
+    52  QB   Jayden Daniels             308    19.9    2    74
+    53  DST  Steelers D/ST              135    19.6    1   139
+    54  WR   Jaylen Waddle              217    19.0    7    44
+    55  TE   Harold Fannin Jr.          185    18.9    4    74
+    56  K    Cameron Dicker             169    18.7    2   146
+    57  RB   D'Andre Swift              209    18.6    6    43
+    58  WR   Terry McLaurin             216    17.9    7    48
+    59  TE   George Kittle              181    15.5    4    90
+    60  K    Harrison Mevis             166    15.3    2   149
+   ------------------------------------------------------------------------
+    61  K    Jason Myers                165    15.0    2   140
+    62  DST  Seahawks D/ST              131    15.0    2    81
+    63  K    Ka'imi Fairbairn           165    14.9    2   138
+    64  DST  Ravens D/ST                130    14.4    2   163
+    65  WR   Davante Adams              212    14.3    7    42
+    66  DST  Rams D/ST                  130    14.0    2   101
+    67  WR   Rome Odunze                211    12.5    7    55
+    68  TE   Kyle Pitts Sr.             178    12.5    4    81
+    69  RB   David Montgomery           203    12.5    6    52
+    70  QB   Joe Burrow                 300    11.7    3    55
+   ------------------------------------------------------------------------
+    71  RB   Bucky Irving               202    11.7    6    46
+    72  K    Eddy Pineiro               162    11.5    2     -
+    73  WR   Luther Burden III          208     9.7    7    51
+    74  WR   Jameson Williams           207     9.2    7    46
+    75  TE   Travis Kelce               174     8.5    4   108
+    76  TE   Tucker Kraft               173     7.4    4   104
+    77  DST  Lions D/ST                 123     7.0    3   130
+    78  K    Harrison Butker            155     4.8    3   152
+    79  QB   Jaxson Dart                292     3.5    4   119
+    80  DST  Eagles D/ST                119     3.5    3   127
+   ------------------------------------------------------------------------
+    81  WR   Mike Evans                 201     3.0    8    57
+    82  K    Cam Little                 153     2.9    3   154
+    83  QB   Brock Purdy                291     2.4    4    83
+    84  QB   Trevor Lawrence            290     2.0    4    91
+    85  DST  Patriots D/ST              117     1.8    3   125
+    86  WR   Parker Washington          200     1.8    8    62
+    87  K    Tyler Loop                 152     1.6    3   165
+    88  K    Jake Bates                 152     1.3    3   152
+    89  DST  Browns D/ST                117     1.2    3   165
+    90  QB   Bo Nix                     290     1.2    4   111
+   ------------------------------------------------------------------------
+    91  QB   Dak Prescott               288     0.0    4    65
+    92  RB   Bhayshul Tuten             190     0.0    7    54
+    93  WR   Christian Watson           198     0.0    8    57
+    94  TE   Mark Andrews               166     0.0    4   133
+    95  DST  Chiefs D/ST                116     0.0    3   162
+    96  K    Cairo Santos               150     0.0    3   163
+    97  K    Trey Smack                 150    -0.1    3   164
+    98  K    Chris Boswell              149    -1.0    3   150
+    99  K    Will Reichard              149    -1.5    3   155
+   100  K    Chase McLaughlin           148    -1.9    3   157
+   ------------------------------------------------------------------------
+   101  RB   Rhamondre Stevenson        188    -2.6    7    61
+   102  TE   Jake Ferguson              163    -2.6    4   136
+   103  K    Nick Folk                  148    -2.6    3     -
+   104  K    Evan McPherson             148    -2.7    4   167
+   105  DST  Vikings D/ST               112    -3.0    3   117
+   106  DST  Chargers D/ST              112    -3.1    3   143
+   107  QB   Caleb Williams             285    -3.3    4    85
+   108  DST  Jets D/ST                  112    -3.5    3   169
+   109  WR   DJ Moore                   194    -3.7    8    47
+   110  QB   Justin Herbert             285    -4.0    4   103
+   ------------------------------------------------------------------------
+   111  K    Spencer Shrader            146    -4.7    4     -
+   112  DST  Packers D/ST               111    -4.9    3   158
+   113  DST  Buccaneers D/ST            110    -5.2    3   183
+   114  QB   Patrick Mahomes            283    -5.7    4   104
+   115  DST  Saints D/ST                110    -6.0    4   192
+   116  TE   Dalton Kincaid             160    -6.3    4   146
+   117  K    Daniel Carlson             144    -6.3    4     -
+   118  QB   Matthew Stafford           281    -7.5    4    75
+   119  RB   Jaylen Warren              182    -8.1    7    63
+   120  WR   Marvin Harrison Jr.        190    -8.1    8    66
+   ------------------------------------------------------------------------
+   121  K    Tyler Bass                 142    -8.1    4   161
+   122  WR   Carnell Tate               190    -8.3    8    80
+   123  RB   Jadarian Price             182    -8.4    7    66
+   124  WR   DK Metcalf                 190    -8.5    8    64
+   125  K    Wil Lutz                   142    -8.8    4   162
+   126  WR   Courtland Sutton           189    -8.8    8    61
+   127  K    Jake Elliott               141    -9.0    4   175
+   128  TE   T.J. Hockenson             157    -9.1    4   168
+   129  TE   Dallas Goedert             156    -9.3    4   121
+   130  TE   Isaiah Likely              156    -9.6    4   136
+   ------------------------------------------------------------------------
+   131  QB   Kyler Murray               278   -10.4    4   129
+   132  K    Drew Stevens               139   -10.9    4     -
+   133  RB   TreVeyon Henderson         179   -11.2    7    64
+   134  K    Dominic Zvada              139   -11.3    4     -
+   135  DST  49ers D/ST                 104   -11.3    4     -
+   136  DST  Bears D/ST                 104   -11.6    4   161
+   137  WR   Brian Thomas Jr.           186   -12.0    8    74
+   138  DST  Bengals D/ST               103   -12.5    4   186
+   139  WR   Jayden Reed                185   -12.5    8    89
+   140  DST  Jaguars D/ST               103   -12.6    4   153
+
+==============================================================================
+  BY POSITION -- replacement level is where value runs out
+==============================================================================
+
+  RB   replacement = RB23 at 190 pts (Bhayshul Tuten)
+   --------------------------------------------------------
+   RB1    Jahmyr Gibbs               350   159.8  t1
+   RB2    Bijan Robinson             339   148.2  t2
+   RB3    Christian McCaffrey        316   125.8  t3
+   RB4    Jonathan Taylor            294   103.7  t4
+   RB5    De'Von Achane              275    84.9  t5
+   RB6    James Cook III             270    80.0  t5
+   RB7    Chase Brown                263    73.0  t5
+   RB8    Derrick Henry              262    71.9  t5
+   RB9    Saquon Barkley             260    69.6  t5
+   RB10   Kenneth Walker III         259    68.1  t5
+   RB11   Ashton Jeanty              256    66.0  t5
+   RB12   Omarion Hampton            252    61.9  t5
+   RB13   Jeremiyah Love             244    53.8  t5
+   RB14   Breece Hall                243    52.2  t5
+   RB15   Javonte Williams           236    45.3  t5
+   RB16   Travis Etienne Jr.         227    36.6  t6
+   RB17   Kyren Williams             220    29.6  t6
+   RB18   Cam Skattebo               214    23.9  t6
+   RB19   Quinshon Judkins           211    21.0  t6
+   RB20   D'Andre Swift              209    18.6  t6
+   RB21   David Montgomery           203    12.5  t6
+   RB22   Bucky Irving               202    11.7  t6
+   RB23   Bhayshul Tuten             190     0.0  t7  <- at or below replacement
+   RB24   Rhamondre Stevenson        188    -2.6  t7  <- at or below replacement
+   RB25   Jaylen Warren              182    -8.1  t7  <- at or below replacement
+   RB26   Jadarian Price             182    -8.4  t7  <- at or below replacement
+   RB27   TreVeyon Henderson         179   -11.2  t7  <- at or below replacement
+   RB28   Rico Dowdle                175   -15.7  t7  <- at or below replacement
+   RB29   Tony Pollard               173   -17.6  t7  <- at or below replacement
+   RB30   J.K. Dobbins               167   -22.9  t7  <- at or below replacement
+
+  WR   replacement = WR29 at 198 pts (Christian Watson)
+   --------------------------------------------------------
+   WR1    Puka Nacua                 333   135.0  t1
+   WR2    Ja'Marr Chase              324   126.0  t2
+   WR3    Jaxon Smith-Njigba         306   107.6  t3
+   WR4    Amon-Ra St. Brown          302   104.2  t3
+   WR5    CeeDee Lamb                282    84.0  t4
+   WR6    Justin Jefferson           272    74.1  t5
+   WR7    Drake London               260    61.8  t6
+   WR8    Nico Collins               255    57.1  t6
+   WR9    A.J. Brown                 248    50.3  t7
+   WR10   Rashee Rice                244    46.2  t7
+   WR11   Chris Olave                243    44.7  t7
+   WR12   George Pickens             242    44.4  t7
+   WR13   Malik Nabers               240    42.3  t7
+   WR14   Garrett Wilson             237    39.4  t7
+   WR15   DeVonta Smith              234    36.1  t7
+   WR16   Zay Flowers                233    35.3  t7
+   WR17   Tetairoa McMillan          229    31.4  t7
+   WR18   Emeka Egbuka               226    28.3  t7
+   WR19   Ladd McConkey              225    26.6  t7
+   WR20   Tee Higgins                222    23.6  t7
+   WR21   Jaylen Waddle              217    19.0  t7
+   WR22   Terry McLaurin             216    17.9  t7
+   WR23   Davante Adams              212    14.3  t7
+   WR24   Rome Odunze                211    12.5  t7
+   WR25   Luther Burden III          208     9.7  t7
+   WR26   Jameson Williams           207     9.2  t7
+   WR27   Mike Evans                 201     3.0  t8
+   WR28   Parker Washington          200     1.8  t8
+   WR29   Christian Watson           198     0.0  t8  <- at or below replacement
+   WR30   DJ Moore                   194    -3.7  t8  <- at or below replacement
+
+  TE   replacement = TE11 at 166 pts (Mark Andrews)
+   --------------------------------------------------------
+   TE1    Brock Bowers               247    81.4  t1
+   TE2    Trey McBride               238    72.5  t2
+   TE3    Colston Loveland           211    45.2  t3
+   TE4    Tyler Warren               206    40.0  t3
+   TE5    Sam LaPorta                193    26.8  t4
+   TE6    Harold Fannin Jr.          185    18.9  t4
+   TE7    George Kittle              181    15.5  t4
+   TE8    Kyle Pitts Sr.             178    12.5  t4
+   TE9    Travis Kelce               174     8.5  t4
+   TE10   Tucker Kraft               173     7.4  t4
+   TE11   Mark Andrews               166     0.0  t4  <- at or below replacement
+   TE12   Jake Ferguson              163    -2.6  t4  <- at or below replacement
+   TE13   Dalton Kincaid             160    -6.3  t4  <- at or below replacement
+   TE14   T.J. Hockenson             157    -9.1  t4  <- at or below replacement
+   TE15   Dallas Goedert             156    -9.3  t4  <- at or below replacement
+   TE16   Isaiah Likely              156    -9.6  t4  <- at or below replacement
+   TE17   Hunter Henry               152   -14.0  t4  <- at or below replacement
+   TE18   Brenton Strange            152   -14.0  t4  <- at or below replacement
+   TE19   Juwan Johnson              144   -22.0  t4  <- at or below replacement
+   TE20   Dalton Schultz             142   -23.9  t4  <- at or below replacement
+   TE21   Chig Okonkwo               132   -33.3  t5  <- at or below replacement
+   TE22   Pat Freiermuth             132   -33.4  t5  <- at or below replacement
+   TE23   Gunnar Helm                129   -37.2  t5  <- at or below replacement
+   TE24   AJ Barner                  128   -37.7  t5  <- at or below replacement
+   TE25   Kenyon Sadiq               123   -42.7  t6  <- at or below replacement
+   TE26   Darren Waller              118   -47.3  t6  <- at or below replacement
+   TE27   Terrance Ferguson          118   -47.8  t6  <- at or below replacement
+   TE28   Greg Dulcich               115   -50.9  t6  <- at or below replacement
+   TE29   Cade Otton                 112   -53.6  t6  <- at or below replacement
+   TE30   Oronde Gadsden             110   -56.3  t6  <- at or below replacement
+
+  QB   replacement = QB11 at 288 pts (Dak Prescott)
+   --------------------------------------------------------
+   QB1    Josh Allen                 361    72.3  t1
+   QB2    Lamar Jackson              320    31.8  t2
+   QB3    Drake Maye                 315    26.3  t2
+   QB4    Jalen Hurts                311    22.7  t2
+   QB5    Jayden Daniels             308    19.9  t2
+   QB6    Joe Burrow                 300    11.7  t3
+   QB7    Jaxson Dart                292     3.5  t4
+   QB8    Brock Purdy                291     2.4  t4
+   QB9    Trevor Lawrence            290     2.0  t4
+   QB10   Bo Nix                     290     1.2  t4
+   QB11   Dak Prescott               288     0.0  t4  <- at or below replacement
+   QB12   Caleb Williams             285    -3.3  t4  <- at or below replacement
+   QB13   Justin Herbert             285    -4.0  t4  <- at or below replacement
+   QB14   Patrick Mahomes            283    -5.7  t4  <- at or below replacement
+   QB15   Matthew Stafford           281    -7.5  t4  <- at or below replacement
+   QB16   Kyler Murray               278   -10.4  t4  <- at or below replacement
+   QB17   Jared Goff                 271   -17.6  t4  <- at or below replacement
+   QB18   Jordan Love                266   -22.9  t4  <- at or below replacement
+   QB19   Baker Mayfield             263   -25.4  t4  <- at or below replacement
+   QB20   Tyler Shough               262   -26.5  t4  <- at or below replacement
+   QB21   Malik Willis               250   -38.3  t5  <- at or below replacement
+   QB22   Sam Darnold                247   -41.9  t5  <- at or below replacement
+   QB23   C.J. Stroud                241   -47.6  t5  <- at or below replacement
+   QB24   Daniel Jones               239   -49.2  t5  <- at or below replacement
+   QB25   Bryce Young                231   -57.4  t6  <- at or below replacement
+   QB26   Geno Smith                 221   -67.9  t6  <- at or below replacement
+   QB27   Cam Ward                   217   -71.3  t6  <- at or below replacement
+   QB28   Aaron Rodgers              194   -94.1  t6  <- at or below replacement
+   QB29   Fernando Mendoza           194   -94.2  t6  <- at or below replacement
+   QB30   Jacoby Brissett            176  -112.7  t6  <- at or below replacement
+
+  K   replacement = K11 at 150 pts (Cairo Santos)
+   --------------------------------------------------------
+   K1     Brandon Aubrey             179    28.6  t1
+   K2     Cameron Dicker             169    18.7  t2
+   K3     Harrison Mevis             166    15.3  t2
+   K4     Jason Myers                165    15.0  t2
+   K5     Ka'imi Fairbairn           165    14.9  t2
+   K6     Eddy Pineiro               162    11.5  t2
+   K7     Harrison Butker            155     4.8  t3
+   K8     Cam Little                 153     2.9  t3
+   K9     Tyler Loop                 152     1.6  t3
+   K10    Jake Bates                 152     1.3  t3
+   K11    Cairo Santos               150     0.0  t3  <- at or below replacement
+   K12    Trey Smack                 150    -0.1  t3  <- at or below replacement
+
+  DST   replacement = DST11 at 116 pts (Chiefs D/ST)
+   --------------------------------------------------------
+   DST1   Texans D/ST                136    20.9  t1
+   DST2   Broncos D/ST               136    20.4  t1
+   DST3   Steelers D/ST              135    19.6  t1
+   DST4   Seahawks D/ST              131    15.0  t2
+   DST5   Ravens D/ST                130    14.4  t2
+   DST6   Rams D/ST                  130    14.0  t2
+   DST7   Lions D/ST                 123     7.0  t3
+   DST8   Eagles D/ST                119     3.5  t3
+   DST9   Patriots D/ST              117     1.8  t3
+   DST10  Browns D/ST                117     1.2  t3
+   DST11  Chiefs D/ST                116     0.0  t3  <- at or below replacement
+   DST12  Vikings D/ST               112    -3.0  t3  <- at or below replacement
+
+==============================================================================
+  TIER BREAKS -- the last name in a tier is the last of that quality
+==============================================================================
+
+  RB
+    tier 1: Gibbs
+    tier 2: Robinson
+    tier 3: McCaffrey
+    tier 4: Taylor
+    tier 5: Achane, III, Brown, Henry, Barkley, III, Jeanty, Hampton, Love, Hall, Williams
+    tier 6: Jr., Williams, Skattebo, Judkins, Swift, Montgomery, Irving
+
+  WR
+    tier 1: Nacua
+    tier 2: Chase
+    tier 3: Smith-Njigba, Brown
+    tier 4: Lamb
+    tier 5: Jefferson
+    tier 6: London, Collins
+
+  TE
+    tier 1: Bowers
+    tier 2: McBride
+    tier 3: Loveland, Warren
+    tier 4: LaPorta, Jr., Kittle, Sr., Kelce, Kraft, Andrews, Ferguson, Kincaid, Hockenson, Goedert, Likely, Henry, Strange, Johnson, Schultz
+    tier 5: Okonkwo, Freiermuth, Helm, Barner
+    tier 6: Sadiq, Waller, Ferguson, Dulcich, Otton, Gadsden, Gesicki, Engram, Taylor, Njoku, Mayer, Washington, Parkinson, Knox, Johnson, Kmet, Arroyo, Gray, Stowers, Kacmarek, Tonges, Higgins, Sample, Raridon, Smith, Hooper, Fant, Tremble, Kolar, Higbee, Jr., Oliver, Stover, Sanders, Bellinger, Bates, Trautman, Klare, Hawes, Schoonmaker, Joly, Royer, Delp, Sinnott, Wright, Boerkircher, Alie-Cox, Roush, Koziol, Spann-Ford, Klein, Cuevas, Ruckert, Smythe, Moreau, Durham, Calcaterra, Allen, Adkins, Traore, Whyle, Whiteheart, Farrell, Hibner, Woerner, Evans, Reiman, Saubert, Ogletree, Thomas, Kieft, Conklin, Long, Mundt, Ryan, Manhertz, Musgrave, Sims
+
+  QB
+    tier 1: Allen
+    tier 2: Jackson, Maye, Hurts, Daniels
+    tier 3: Burrow
+    tier 4: Dart, Purdy, Lawrence, Nix, Prescott, Williams, Herbert, Mahomes, Stafford, Murray, Goff, Love, Mayfield, Shough
+    tier 5: Willis, Darnold, Stroud, Jones
+    tier 6: Young, Smith, Ward, Rodgers, Mendoza, Brissett, Jr., Sanders, Tagovailoa, Watson, Cousins, Beck, Fields, Flacco, Jones, II, Klubnik, Allar, Lance, McCarthy, Simpson, Mariota, DeVito, Stidham, Bagent, Taylor, McKee, Leonard, Ewers, Rattler, Howard, Winston, Huntley, Dobbs, Mills, Allen, Trubisky, III, Mullens, Rudolph, Bridgewater, Daniels, Howell, Pickett, McCord, Lock, Rush, IV, Cook, Browning, O'Connell
+
+==============================================================================
+  IF EVERYTHING IS DOWN: take the highest uncrossed name that does not
+  break a rule above. That alone finished 1.53 of 10 against real 2025
+  results across 800 simulated drafts.
+==============================================================================
